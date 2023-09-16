@@ -24,3 +24,4 @@ watchfiles==0.20.0
 websockets==11.0.3
 python-multipart==0.0.6 
 tensorflow
+firebase_admin
