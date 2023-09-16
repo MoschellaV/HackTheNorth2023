@@ -16,6 +16,15 @@ export const theme = createTheme({
             fontSize: 50,
             fontWeight: 800,
         },
+        h5: {
+            fontSize: 20,
+            fontWeight: 600,
+        },
+        subtitle1: {
+            fontSize: 14,
+            opacity: 0.7,
+            fontWeight: 600,
+        },
     },
 });
 
