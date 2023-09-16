@@ -5,6 +5,8 @@ import SignUpPage from "./components/SignUpPage";
 import LoginPage from "./components/LoginPage";
 import HomePage from "./components/HomePage";
 import TrainPage from "./components/TrainPage";
+import AllModels from "./components/AllModels";
+import ModelPage from "./components/ModelPage";
 
 function App() {
     return (
@@ -19,6 +21,23 @@ function App() {
                     element={
                         <PrivateRoute>
                             <TrainPage />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="your-models"
+                    element={
+                        <PrivateRoute>
+                            <AllModels />
+                        </PrivateRoute>
+                    }
+                />
+
+                <Route
+                    path="your-models/:modelID"
+                    element={
+                        <PrivateRoute>
+                            <ModelPage />
                         </PrivateRoute>
                     }
                 />

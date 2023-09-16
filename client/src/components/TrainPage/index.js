@@ -53,6 +53,7 @@ export default function TrainPage(props) {
         setMLModelId(modelId);
 
         const data = {
+            uid: userData.uid,
             modelId: modelId,
             status: "Analyzing",
         };
