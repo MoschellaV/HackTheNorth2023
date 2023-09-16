@@ -84,7 +84,7 @@ async def upload_csv(user_id: str, model_id: str, file: UploadFile = File(...)):
 
 @app.post("/api/train/{user_id}/{model_id}")
 async def train_model(user_id: str, model_id: str, target: Train):
-    update_job_status(model_id, analyzing)
+    update_job_status(model_id, "Analyzing Data")
     df = os.path.join(".", "local", user_id, model_id, "data.csv")
     df = pd.read_csv(df)
 
@@ -165,7 +165,7 @@ def train(df, remove_cols, target, user_id, model_id):
     normalizer.adapt(numeric_features.to_numpy())
     numeric_features = pd.DataFrame(numeric_features)
 
-    update_job_status(model_id, "building model")
+    update_job_status(model_id, "Building Model")
     model = get_basic_model(normalizer, ENCODING, numeric_features)
 
     model_summary = []
@@ -175,7 +175,7 @@ def train(df, remove_cols, target, user_id, model_id):
 
     model.save(f'./local/{user_id}/{model_id}/model', save_format='tf')
 
-    update_job_status(model_id, "done")
+    update_job_status(model_id, "Completed")
 
     # epochs directly relate to the amount of numbers inside of the accuracy list
     return {"model_summary": model_summary, "encoding": ENCODING, "epochs": EPOCHS, "batches": BATCH_SIZE,
