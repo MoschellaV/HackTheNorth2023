@@ -1,10 +1,13 @@
 import React, { useState } from "react";
-import { Box, Button, Typography, TextField } from "@mui/material";
+import { Box, Button, TextField } from "@mui/material";
 import { postTarget } from "../../../api/server";
 import { useUserContext } from "../../../context/UserContext";
 import { updateDocField } from "../../../utils/UpdateDocField";
+import { useNavigate } from "react-router-dom";
+import moment from "moment";
 
 export default function NameModel(mlModelId, target) {
+    let navigate = useNavigate();
     const { userData } = useUserContext();
     const [name, setName] = useState("");
     const [error, setError] = useState(false);
@@ -15,20 +18,29 @@ export default function NameModel(mlModelId, target) {
             return;
         }
 
+        // store name
         await updateDocField("models", mlModelId.mlModelId, "name", name);
+
+        // store target
         await updateDocField("models", mlModelId.mlModelId, "target", mlModelId.target.label);
 
-        postTarget(mlModelId.target.label, userData.uid, mlModelId.mlModelId)
-            .then((res) => {
-                if (res.status === 200) {
-                    // setTargetOptions(arrayToObjects(res.data.columns));
-                    // setUserHasSubmittedFile(true);
-                    console.log("success");
-                }
-            })
-            .catch((err) => {
-                console.error(err);
-            });
+        // store time
+        const currentTimeUnix = moment().valueOf();
+        await updateDocField("models", mlModelId.mlModelId, "createdAt", currentTimeUnix);
+
+        postTarget(mlModelId.target.label, userData.uid, mlModelId.mlModelId);
+        return navigate("/your-models");
+        // .then((res) => {
+        //     if (res.status === 200) {
+        //         // setTargetOptions(arrayToObjects(res.data.columns));
+        //         // setUserHasSubmittedFile(true);
+        //         console.log("success");
+        //         r
+        //     }
+        // })
+        // .catch((err) => {
+        //     console.error(err);
+        // });
     };
 
     return (
