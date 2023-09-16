@@ -8,6 +8,7 @@ import TrainPage from "./components/TrainPage";
 import AllModels from "./components/AllModels";
 import ModelPage from "./components/ModelPage";
 
+
 function App() {
     return (
         <main>
