@@ -1,8 +1,24 @@
 from fastapi import FastAPI, File, Form, UploadFile
 import pandas as pd
 import os
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI()
+
+
+origins = [
+    "http://localhost:3000",
+    "localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 
 # UPLOAD CSV FILE AND RETURN POSSIBLE COLUMNS
