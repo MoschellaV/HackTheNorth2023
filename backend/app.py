@@ -74,12 +74,12 @@ async def train_model(user_id: str, model_id: str, target: Train):
     df = os.path.join(".", "local", user_id, model_id, "data.csv")
     df = pd.read_csv(df)
 
-    train(df, target.target, user_id, model_id)
+    data = train(df, target.target, user_id, model_id)
 
     # TODO: add actual train func
 
     # call train function
-    return {"success": True}
+    return data
 
 
 @app.post("/api/predict/{user_id}/{model_id}/csv")
@@ -89,7 +89,7 @@ async def upload_csv_predict(
     file: UploadFile = File(...),
     target: str = Form(...)
 ):
-    
+
     # change the file into a dataframe
     df = pd.read_csv(file.file)
     # call predict function
@@ -99,6 +99,7 @@ async def upload_csv_predict(
 @app.post("/api/predict/{user_id}/{model_id}/json")
 async def upload_json_predict(user_id: str, model_id: str, file: UploadFile = File(...)):
     pass
+
 
 # GET ALL MODELS FOR USER_ID
 @app.get("/api/models/{user_id}")
@@ -115,7 +116,8 @@ async def get_models(user_id: str):
 
 def train(df, target, user_id, model_id):
     SHUFFLE_BUFFER = 500
-    BATCH_SIZE = 1024
+    BATCH_SIZE = 32
+    EPOCHS = 90
 
     REMOVED_COL = "BookingID"
     PREDICT_COL = "BookingStatus"
@@ -147,10 +149,21 @@ def train(df, target, user_id, model_id):
     numeric_features = pd.DataFrame(numeric_features)
 
     model = get_basic_model(normalizer, ENCODING)
-    model.fit(numeric_features.to_numpy(), target, epochs=30, batch_size=BATCH_SIZE)
+
+    # with open(f'./local/{user_id}/{model_id}/' + 'model.txt', 'w') as fh:
+    #     model.summary(print_fn=lambda x: fh.write(x + '\n'))
+
+    model_summary = []
+    model.summary(print_fn=lambda x: model_summary.append(x))
+    print(model_summary)
+
+    history = model.fit(numeric_features.to_numpy(), target, epochs=EPOCHS, batch_size=BATCH_SIZE)
 
     model.save(f'./local/{user_id}/{model_id}/model.h5')
-    return ENCODING
+
+    # epochs directly relate to the amount of numbers inside of the accuracy list
+    return {"model_summary": model_summary, "encoding": ENCODING, "epochs": EPOCHS, "batches": BATCH_SIZE,
+            "predicted_column": PREDICT_COL, "accuracy": history.history['accuracy']}
 
 
 def get_basic_model(normalizer, encoding):
