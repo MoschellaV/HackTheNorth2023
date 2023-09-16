@@ -63,8 +63,13 @@ async def train_model(user_id: str, model_id: str, target: Train):
     # call train function
     return {"success": True}
 
+@app.post("/api/predict-upload/{user_id}/{model_id}")
+async def upload_csv_predict(user_id: str, model_id: str, file: UploadFile = File(...), delimiter: str = Form(',')):
+    pass
 
 @app.post("/api/predict/{user_id}/{model_id}")
+async def predict():
+    pass
 
 # GET ALL MODELS FOR USER_ID
 @app.get("/api/models/{user_id}")
