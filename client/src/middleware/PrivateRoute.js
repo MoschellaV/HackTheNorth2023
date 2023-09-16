@@ -1,10 +1,12 @@
 import { onAuthStateChanged } from "firebase/auth";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { auth } from "../firebase/firebase";
-import { Route, redirect } from "react-router-dom";
+import { useUserContext } from "../context/UserContext";
+import { useNavigate } from "react-router-dom";
 
 const PrivateRoute = ({ children, ...rest }) => {
-    const [user, setUser] = useState(null);
+    let navigate = useNavigate();
+    const { userData, setUserData } = useUserContext();
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (data) => {
@@ -16,27 +18,17 @@ const PrivateRoute = ({ children, ...rest }) => {
                     createdAt: data.metadata.createdAt,
                 };
 
-                setUser(updatedUserData);
+                setUserData(updatedUserData);
             } else {
-                // user is signed out
-                const updatedUserData = {
-                    id: null,
-                    email: null,
-                };
-
-                setUser(updatedUserData);
-                // router.push("/login");
-                redirect("/train");
+                setUserData(null);
+                return navigate("/");
             }
         });
 
         return () => unsubscribe();
     }, []);
 
-    return (
-        // user is authenticated
-        <Route {...rest} render={({ location }) => (user ? children : null)} />
-    );
+    return userData && children;
 };
 
 export default PrivateRoute;

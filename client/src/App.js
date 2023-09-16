@@ -17,9 +17,9 @@ function App() {
                 <Route
                     path="train"
                     element={
-                        // <PrivateRoute>
-                        <TrainPage />
-                        // </PrivateRoute>
+                        <PrivateRoute>
+                            <TrainPage />
+                        </PrivateRoute>
                     }
                 />
             </Routes>
