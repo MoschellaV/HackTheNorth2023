@@ -8,8 +8,642 @@ body {
         "Droid Sans", "Helvetica Neue", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    
+
+}
+
+body .homepage{
+    overflow: hidden;
 }
 
 code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+.App {
+    text-align: center;
+  }
+  
+  .App-logo {
+    height: 40vmin;
+    pointer-events: none;
+  }
+  
+  @media (prefers-reduced-motion: no-preference) {
+    .App-logo {
+      animation: App-logo-spin infinite 20s linear;
+    }
+  }
+  
+  .App-header {
+    background-color: #282c34;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: white;
+  }
+  
+  .App-link {
+    color: #61dafb;
+  }
+  
+  @keyframes App-logo-spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  
+  /* Homepage */
+  
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800;900&display=swap');
+  
+  *{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+  }
+  /* @font-face {
+    font-family: firstFont;
+    src: url(Raleway-Italic-VariableFont_wght.ttf);
+  }
+  
+  div {
+    font-family: firstFont;
+  } */
+  
+  p{
+    width: 70%;
+  /*   text-align: right !important; */
+  /*   display: block; */
+  }
+  .p{
+    font-family:firstFont;
+  }
+  
+  img{
+    width:15%;
+  }
+
+  header {
+  /*   backdrop-filter: blur(5px); */
+    background-color: transparent;
+    opacity: 0.5;
+  /*   border-bottom: 1px solid slategray; */
+    padding: 20px 0px;
+  }
+  
+  .rounded{
+      border-radius: 25px;
+      background-color: white;
+  }
+  
+  /* ------------------------*/
+    #map {
+      height: 60%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+  
+  .hidden {
+    display: none
+  }
+  
+  #user-matching-bg {
+      background-image: linear-gradient(-45deg, #3298dc, #343e69); 
+  }
+  
+  
+  
+  /* ------------------------*/
+  
+  
+  
+  
+  
+  
+  /* -------------------------------------------
+  header{
+    z-index: 999;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 50px;
+    transition: 0.5s ease;
+  }
+  
+  header .brand{
+    color: #000000;
+    font-size: 1.5em;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  
+  header .navigation{
+    position: relative;
+  }
+  
+  header .navigation .navigation-items a{
+    position: relative;
+    color: #000000;
+    font-size: 1em;
+    font-weight: 500;
+    text-decoration: none;
+    margin-left: 30px;
+    transition: 0.3s ease;
+    opacity:1;
+    font-weight: lighter;
+  }
+  
+  header .navigation .navigation-items a:before{
+    content: '';
+    position: absolute;
+    background: #000000;
+    width: 0;
+    height: 3px;
+    bottom: 0;
+    left: 0;
+    transition: 0.3s ease;
+  }
+  
+  header .navigation .navigation-items a:hover:before{
+    width: 100%;
+  } */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 50px;
+    transition: 0.5s ease;
+  }
+  
+  header .brand {
+    color: #000000;
+    font-size: 1.5em;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  
+  /* Styles for Login and Signup buttons */
+  header .auth-buttons {
+    display: flex;
+    align-items: center;
+  }
+  
+  header .login-button,
+  header .signup-button,
+  header .navigation .navigation-items a {
+    margin-left: 70px;
+    color: #000000;
+    font-size: 1em;
+    font-weight: 500;
+    text-decoration: none;
+    /* transition: 0.3s ease; */
+    opacity: 1;
+    font-weight: lighter;
+  }
+  
+  header li:hover, .login-button:hover, .signup-button:hover {
+    font-weight: bold; /* Add font-weight: bold; here */
+    text-decoration:underline;
+  }
+  
+  header .signup-button {
+    background-color: transparent;
+    color: black;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-right: 20px; 
+    margin-left: 20px;/* Adjust spacing between buttons */
+  }
+  
+  header .login-button{
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    margin-right: 20px; 
+    margin-left: 20px;/* Adjust spacing between buttons */
+  }
+  
+  /* CSS for larger screens */
+  header {
+    
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 50px;
+    transition: 0.5s ease;
+  }
+  
+  header .brand {
+    color: #000000;
+    font-size: 1.5em;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  
+  header .navigation {
+    text-align: right;
+  }
+  
+  header .navigation .navigation-items {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  header .navigation .navigation-items{
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+  }
+  
+  header .navigation .navigation-items li {
+    margin-left: 20px; /* Add space between links as needed */
+  }
+  
+  header .navigation .navigation-items a {
+    color: #000000;
+    font-size: 1em;
+    font-weight: 500;
+    text-decoration: none;
+    /* transition: 0.3s ease; */
+    opacity: 1;
+    font-weight:bold;
+  }
+  
+  header .navigation .navigation-items a:hover {
+    color: #ffffff;
+    font-size: 1em;
+    font-weight: 500;
+    text-decoration: none;
+    /* transition: 0.3s ease; */
+    opacity: 1;
+    font-weight:bolder;
+    text-decoration: underline;
+    
+  }
+
+  header .navigation .navigation-items a:before {
+    content: '';
+    position: absolute;
+    background: #ffffff;
+    width: 0;
+    height: 3px;
+    bottom: 0;
+    left: 0;
+    transition: 0.3s ease;
+  }
+  
+  header .navigation .navigation-items a:hover:before {
+    width: 100%;
+  }
+  
+  /* CSS for smaller screens (e.g., mobile devices) */
+  @media (max-width: 768px) {
+    header {
+      padding: 15px;
+      flex-direction: column;
+      text-align: center;
+    }
+  
+    header .navigation {
+      margin-top: 20px;
+    }
+  
+    header .navigation .navigation-items {
+      flex-direction: column;
+    }
+  
+    header .navigation .navigation-items li {
+      margin: 10px 0;
+    }
+  }
+  
+  
+  
+  
+  section{
+    padding: 150px 100px;
+  }
+  
+  .home{
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    justify-content: left;
+    flex-direction: column;
+    background: #000000;
+  }
+  
+  .home:before{
+    z-index: 777;
+    content: '';
+    position: absolute;
+  /*   background: rgba(3, 96, 251, 0.3); */
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+  }
+  
+  .home .content{
+    z-index: 888;
+    color: #fff; /* controls text colour */
+    text-shadow: 0.7px 0.5px #7a7a7a; /* add shadow for increased legibility*/
+    width: 70%;
+    margin-top: 50px;
+    display: none;
+  }
+  
+  .home .content.active{
+    display: block;
+  }
+  
+  .home .content h1{
+    font-size: 4em;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    line-height: 85px;
+    margin-bottom: 40px;
+    font-weight:300;
+  }
+  
+  .home .content h1 span{
+    font-size: 1.2em;
+    font-weight: 600;
+  }
+  
+  .home .content p{
+    margin-bottom: 65px;
+  }
+  
+  .home .content a:hover{
+    background: #fff; /* Button colour!!*/
+    padding: 15px 35px;
+    color: #4696b6;
+    font-size: 1.1em;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 25px;
+  }
+  .home .content a{
+    background: #4696b6; /* Button colour!!*/
+    padding: 15px 35px;
+    color: #fff;
+    font-size: 1.1em;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 25px;
+  }
+  
+  .home .media-icons{
+    z-index: 888;
+    position: absolute;
+    right: 30px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .home .media-icons a{
+    color: #ffffff;
+    font-size: 1.6em;
+  }
+  
+  .home .media-icons a:not(:last-child){
+    margin-bottom: 20px;
+  }
+  
+  .home .media-icons a:hover{
+    transform: scale(1.3);
+  }
+  
+  .home video{
+    z-index: -1;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit:cover;
+  }
+  
+  video{
+    z-index: -1;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  @media (max-width: 1040px){
+    header{
+      padding: 12px 20px;
+    }
+  
+    section{
+      padding: 10px 20px;
+    }
+  
+    .home .media-icons{
+      right: 15px;
+    }
+  
+    header .navigation{
+      display: none;
+    }
+  
+    header .navigation.active{
+      /* position: fixed; */
+      width: 100%;
+      height: 100vh;
+      top: 0;
+      left: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      /* background: rgba(1, 1, 1, 0.5); */
+    }
+  
+    header .navigation .navigation-items a{
+      color: #222;
+      font-size: 1.2em;
+      margin: 20px;
+    }
+  
+    header .navigation .navigation-items a:before{
+      background: #222;
+      height: 5px;
+    }
+  
+    header .navigation.active .navigation-items{
+      background: #000000;
+      width: 600px;
+      max-width: 600px;
+      margin: 20px;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border-radius: 5px;
+      box-shadow: 0 5px 25px rgb(1 1 1 / 20%);
+    }
+  }
+
+  @media (max-width: 560px){
+    .home .content h1{
+      font-size: 3em;
+      line-height: 60px;
+    }
+  }
+  
+  .button:hover{
+    background-color: #000000;
+    color: #000000
+  }
+  
+  
+  /* Homepage */
+  .home {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    justify-content: left; /* Change to 'left' to align content to the left */
+    flex-direction: column;
+    background: transparent; /* Background for site*/
+  }
+  
+  .home:before {
+    z-index: 777;
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+  }
+  
+  .home .content {
+    z-index: 888;
+    color: #fff;
+    text-shadow: 0.7px 0.5px #7a7a7a;
+    width: 70%;
+    margin-top: 50px;
+    display: none;
+  }
+  
+  .home .content.active {
+    display: block;
+    text-align: left; /* Align the text to the left */
+  }
+  
+  #background-video {
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    /* position: fixed; */
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: -1;
+  }
+  
+  header .brand{
+    margin-left: 50px;
+  }
+
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 50px;
+    position: fixed; /* Add this line */
+    width: 100%; /* Add this line */
+    top: 0; /* Add this line */
+    left: 0; /* Add this line */
+    background-color: transparent; /* Change this to your preferred color */
+    transition: 0.5s ease;
+    z-index: 9999;
+}
+
+header .brand {
+    color: #ffffff;
+    font-size: 1.5em;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: none;
+    opacity: 100%;
+}
+
+header .navigation {
+    z-index: 999;
+    display: flex;
+}
+
+header .navigation .navigation-items a {
+    color: #ffffff;
+    font-size: 1em;
+    font-weight: 500;
+    text-decoration: none;
+    margin-left: 30px;
+}
+
+header .navigation .navigation-items:hover {
+    color: #ffffff;
+    font-size: 1em;
+    font-weight: 500;
+    text-decoration: none;
+    margin-left: 30px;
+}
+
+header{
+    color: #ffffff;
+    font-size: 1em;
+    font-weight: 500;
+    text-decoration: none;
+    margin-left: 30px;
+}
+
+header .navigation .navigation-items a::before {
+    content: '';
+    position: absolute;
+    background: transparent;
+    width: 0;
+    height: 3px;
+    bottom: 0;
+    left: 0;
+    transition: 0.3s ease;
+}
+
+header .navigation .navigation-items a:hover::before {
+    width: 100%;
 }
