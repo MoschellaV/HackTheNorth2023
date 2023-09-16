@@ -10,6 +10,7 @@ import time
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
+from helper import update_job_status
 
 app = FastAPI()
 
@@ -83,6 +84,7 @@ async def upload_csv(user_id: str, model_id: str, file: UploadFile = File(...)):
 
 @app.post("/api/train/{user_id}/{model_id}")
 async def train_model(user_id: str, model_id: str, target: Train):
+    update_job_status(model_id, analyzing)
     df = os.path.join(".", "local", user_id, model_id, "data.csv")
     df = pd.read_csv(df)
 
@@ -155,7 +157,6 @@ def train(df, remove_cols, target, user_id, model_id):
     df = df.astype('int')
 
     numeric_feature_names = [name for name in df.columns]
-    print(len(numeric_feature_names))
     numeric_features = df[numeric_feature_names]
     numeric_features.head()
     tf.convert_to_tensor(numeric_features)
@@ -164,18 +165,17 @@ def train(df, remove_cols, target, user_id, model_id):
     normalizer.adapt(numeric_features.to_numpy())
     numeric_features = pd.DataFrame(numeric_features)
 
+    update_job_status(model_id, "building model")
     model = get_basic_model(normalizer, ENCODING, numeric_features)
-
-    # with open(f'./local/{user_id}/{model_id}/' + 'model.txt', 'w') as fh:
-    #     model.summary(print_fn=lambda x: fh.write(x + '\n'))
 
     model_summary = []
     model.summary(print_fn=lambda x: model_summary.append(x))
-    print(model_summary)
 
     history = model.fit(numeric_features.to_numpy(), target, epochs=EPOCHS, batch_size=BATCH_SIZE)
 
     model.save(f'./local/{user_id}/{model_id}/model', save_format='tf')
+
+    update_job_status(model_id, "done")
 
     # epochs directly relate to the amount of numbers inside of the accuracy list
     return {"model_summary": model_summary, "encoding": ENCODING, "epochs": EPOCHS, "batches": BATCH_SIZE,
