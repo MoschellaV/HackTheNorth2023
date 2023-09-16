@@ -22,8 +22,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-
 # UPLOAD CSV FILE AND RETURN POSSIBLE COLUMNS
 @app.post("/api/train-upload/{user_id}/{model_id}")
 async def upload_csv(user_id: str, model_id: str, file: UploadFile = File(...)):
@@ -68,8 +66,8 @@ async def upload_csv(user_id: str, model_id: str, file: UploadFile = File(...)):
 @app.post("/api/train/{user_id}/{model_id}")
 async def train_model(user_id: str, model_id: str, target: Train):
     df = os.path.join(".", "local", user_id, model_id, "data.csv")
-    # print type of df
-    print(type(df))
+    df = pd.read_csv(df)
+    
     train(df, target.target)
 
     # TODO: add actual train func
