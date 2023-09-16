@@ -6,12 +6,14 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
+
 class Train(BaseModel):
     target: str
 
+
 origins = [
     "http://localhost:3000",  # Adjust this to your frontend's address
-    "http://yourfrontenddomain.com",
+    "localhost:3000",
     "http://127.0.0.1:3000"
 ]
 
@@ -23,10 +25,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # UPLOAD CSV FILE AND RETURN POSSIBLE COLUMNS
 @app.post("/api/train-upload/{user_id}/{model_id}")
 async def upload_csv(user_id: str, model_id: str, file: UploadFile = File(...)):
-
     delimiter = ','
 
     # The 'file' parameter is used to receive the uploaded CSV file.
@@ -64,11 +66,12 @@ async def upload_csv(user_id: str, model_id: str, file: UploadFile = File(...)):
 
     return {"columns": header}
 
+
 @app.post("/api/train/{user_id}/{model_id}")
 async def train_model(user_id: str, model_id: str, target: Train):
     df = os.path.join(".", "local", user_id, model_id, "data.csv")
     df = pd.read_csv(df)
-    
+
     train(df, target.target, user_id, model_id)
 
     # TODO: add actual train func
@@ -76,13 +79,16 @@ async def train_model(user_id: str, model_id: str, target: Train):
     # call train function
     return {"success": True}
 
+
 @app.post("/api/predict-upload/{user_id}/{model_id}")
 async def upload_csv_predict(user_id: str, model_id: str, file: UploadFile = File(...), delimiter: str = Form(',')):
     pass
 
+
 @app.post("/api/predict/{user_id}/{model_id}")
 async def predict():
     pass
+
 
 # GET ALL MODELS FOR USER_ID
 @app.get("/api/models/{user_id}")
@@ -90,11 +96,14 @@ async def get_models(user_id: str):
     # check if local directory exists or local/user_id exists
     if not os.path.exists("local") and not os.path.exists(os.path.join("local", user_id)):
         return {"error": "No models found."}
-    
+
     # get all models for user_id
     models = os.listdir(os.path.join("local", user_id))
 
     return {"models": models}
 
+
 def train(df, target, user_id, model_id):
+    SHUFFLE_BUFFER = 500
+    BATCH_SIZE = 1024
     return True
