@@ -12,6 +12,7 @@ class Train(BaseModel):
 origins = [
     "http://localhost:3000",  # Adjust this to your frontend's address
     "http://yourfrontenddomain.com",
+    "http://127.0.0.1:3000"
 ]
 
 app.add_middleware(
@@ -21,8 +22,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
 
 # UPLOAD CSV FILE AND RETURN POSSIBLE COLUMNS
 @app.post("/api/train-upload/{user_id}/{model_id}")
@@ -68,9 +67,9 @@ async def upload_csv(user_id: str, model_id: str, file: UploadFile = File(...)):
 @app.post("/api/train/{user_id}/{model_id}")
 async def train_model(user_id: str, model_id: str, target: Train):
     df = os.path.join(".", "local", user_id, model_id, "data.csv")
-    # print type of df
-    print(type(df))
-    train(df, target.target)
+    df = pd.read_csv(df)
+    
+    train(df, target.target, user_id, model_id)
 
     # TODO: add actual train func
 
@@ -97,5 +96,5 @@ async def get_models(user_id: str):
 
     return {"models": models}
 
-def train(df, target):
+def train(df, target, user_id, model_id):
     return True
