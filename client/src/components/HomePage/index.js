@@ -3,8 +3,10 @@ import { Link } from "react-router-dom";
 import logo from "../../DropModel-T.png";
 import sample from "../../bgvideo.mp4";
 import Navbar from "../Navbar";
+import { useUserContext } from "../../context/UserContext";
 
 export default function HomePage() {
+
     return (
         <>
             <video className='videoTag' autoPlay loop muted>
@@ -13,28 +15,6 @@ export default function HomePage() {
             <noscript>You need to enable JavaScript to run this app.</noscript>
             <div id="root"></div>
             <Navbar />
-            {/* <header className="flex flex-row transparent fixed justify-between w-screen"> */}
-            {/* <a href="#" className="brand">
-                DropModel
-            </a> */}
-            {/* <div className="flex flex-row justify-center items-center">
-                <img src={logo} alt="Logo" className="w-14 opacity-100" />
-                <div className="flex flex-row font-semibold pl-3 text-2xl">
-                <a>Drop</a>
-                <p>Model</p>
-                </div>
-    
-            </div> */}
-            {/* <div className="navigation">
-                <div className="navigation-items">
-                <a href=""><Link to="/train">Train</Link></a>
-                <a href="">Use Models</a>
-                <a href="">Your Results</a>
-                <a href=""><Link to="/login">Log In</Link></a>
-                <a href=""><Link to="/signup">Sign Up</Link></a>
-                </div>
-            </div>
-            </header> */}
     
             <section className="home">
     
@@ -42,7 +22,7 @@ export default function HomePage() {
                 <h1>
                 Welcome To
                 <br />
-                <span><keyword className = "keyword">Drop</keyword>Model</span>
+                <span><keyword className = "text-cyan-500">Drop</keyword>Model</span>
                 </h1>
                 <p>Transform your data into intelligence with DropModel's cutting-edge platform. 
                 Simply upload your dataset, select your prediction variable, and watch as your machine model is created automatically. 
