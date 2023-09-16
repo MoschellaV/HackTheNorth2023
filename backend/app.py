@@ -15,9 +15,8 @@ from helper import update_job_status
 app = FastAPI()
 
 # initialize firebase 
-cred = credentials.Certificate('./serviceAccountKey.json') 
+cred = credentials.Certificate('./serviceAccountKey.json')
 firebase_admin.initialize_app(cred)
-
 
 
 class Train(BaseModel):
@@ -78,7 +77,11 @@ async def upload_csv(user_id: str, model_id: str, file: UploadFile = File(...)):
         f.write(csv_content)
 
     # TODO: Return only good headers
-
+    df = os.path.join(".", "local", user_id, model_id, "data.csv")
+    df = pd.read_csv(df)
+    for col in df.columns:
+        if len(df[col].unique()) > 10:
+            header.remove(col)
     return {"columns": header}
 
 
@@ -127,9 +130,8 @@ async def get_models(user_id: str):
 
 
 def train(df, remove_cols, target, user_id, model_id):
-    SHUFFLE_BUFFER = 500
-    BATCH_SIZE = 64 # 32
-    EPOCHS = 50 # 100
+    BATCH_SIZE = 64  # 32
+    EPOCHS = 50  # 100
 
     REMOVED_COL = remove_cols
     REMOVED_COL.append("BookingID")
@@ -230,11 +232,11 @@ def predict(df: pd.DataFrame, target, user_id, model_id):
 
     df = df.astype('int')
     numeric_feature_names = [name for name in df.columns]
-    print(len(numeric_feature_names))
-
     numeric_features = df[numeric_feature_names]
     numeric_features.head()
+
     tf.convert_to_tensor(numeric_features)
+
     normalizer = tf.keras.layers.Normalization(axis=-1)
     normalizer.adapt(numeric_features.to_numpy())
 
