@@ -1,6 +1,6 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-import { Box, IconButton, Typography, Button } from "@mui/material";
+import { Box, IconButton, Typography, Button, TextField } from "@mui/material";
 import CenterWrapper from "../CenterWrapper";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import ClearIcon from "@mui/icons-material/Clear";
@@ -8,13 +8,28 @@ import { findPotentialTargets } from "../../api/server";
 import { useUserContext } from "../../context/UserContext";
 import { v4 as uuidv4 } from "uuid";
 import { storeModelData } from "../../utils/StoreModelData";
+import FilePreview from "./FilePreview";
+import Step from "./Step";
+import SelectTarget from "./SelectTarget";
+import NameModel from "./NameModel";
 
 export default function TrainPage(props) {
-    const [myFile, setMyFile] = useState();
     const { userData } = useUserContext();
+    const [myFile, setMyFile] = useState();
+    const [userHasUploadFile, setUserHasUploadFile] = useState(false); // step one check
+    const [userHasSubmittedFile, setUserHasSubmittedFile] = useState(false); // step two check
+    const [userHasSelectedTarget, setUserHasSelectedTarget] = useState(false); // step three check
+    const [targetOptions, setTargetOptions] = useState([]);
+    const [mlModelId, setMLModelId] = useState("");
+    const [name, setName] = useState("");
+
+    // for target
+    const [target, setTarget] = useState("");
+    const [inputValue, setInputValue] = useState("");
 
     const onDrop = useCallback((acceptedFile) => {
         setMyFile(acceptedFile);
+        setUserHasUploadFile(true);
     }, []);
 
     const { getRootProps, getInputProps } = useDropzone({
@@ -25,10 +40,18 @@ export default function TrainPage(props) {
         setMyFile();
     };
 
+    function arrayToObjects(arr) {
+        return arr.map((label) => ({ label }));
+    }
+    useEffect(() => {
+        console.log(target);
+    }, [target]);
+
     const submitFile = async () => {
         const formData = new FormData();
         formData.append("file", myFile[0]);
         const modelId = `model_${uuidv4()}`;
+        setMLModelId(modelId);
 
         const data = {
             modelId: modelId,
@@ -40,7 +63,8 @@ export default function TrainPage(props) {
         findPotentialTargets(formData, userData.uid, modelId)
             .then((res) => {
                 if (res.status === 200) {
-                    console.log(res.data);
+                    setTargetOptions(arrayToObjects(res.data.columns));
+                    setUserHasSubmittedFile(true);
                 }
             })
             .catch((err) => {
@@ -48,11 +72,18 @@ export default function TrainPage(props) {
             });
     };
 
+    console.log(mlModelId);
     return (
         <CenterWrapper>
-            <Box sx={{ my: 10 }}>
-                <section className="container">
-                    {!myFile ? (
+            <Box sx={{ my: 5 }}>
+                {/* TITLE */}
+                <Typography variant="h3" component="h3" sx={{ my: 3 }}>
+                    Generate Model
+                </Typography>
+                {/* STEP 1 */}
+                <Step stepNum={"1"} description={"Upload your dataset!"} isCompleted={userHasUploadFile} />
+                {!myFile && (
+                    <>
                         <div {...getRootProps({ className: "dropzone" })}>
                             <Box
                                 sx={{
@@ -73,58 +104,77 @@ export default function TrainPage(props) {
                                 </Typography>
                             </Box>
                         </div>
-                    ) : (
-                        <>
+                    </>
+                )}
+                {/* STEP 2 */}
+                <Step stepNum={"2"} description={"We'll analyze your data"} isCompleted={userHasSubmittedFile} />
+                {myFile && !userHasSubmittedFile && (
+                    <>
+                        <Box
+                            sx={{
+                                my: 2,
+                                width: "100%",
+                                height: 120,
+                                backgroundColor: "#f2f2f2",
+                                borderRadius: 5,
+                                border: "3px dashed #cbcbcb",
+                                display: "flex",
+                                alignItems: "center",
+                            }}
+                        >
                             <Box
-                                sx={{
-                                    width: "100%",
-                                    height: 200,
-                                    backgroundColor: "#f2f2f2",
-                                    borderRadius: 5,
-                                    border: "3px dashed #cbcbcb",
+                                style={{
                                     display: "flex",
                                     alignItems: "center",
+                                    width: "100%",
+                                    justifyContent: "space-between",
                                 }}
                             >
-                                <Box
-                                    style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        width: "100%",
-                                        justifyContent: "space-between",
-                                    }}
-                                >
-                                    <Box sx={{ ml: 5 }} style={{ display: "flex", alignItems: "center", opacity: 0.7 }}>
-                                        <InsertDriveFileIcon style={{ fontSize: 50 }} />
-                                        <Box sx={{ ml: 2 }}>
-                                            <Typography variant="p" component="p">
-                                                {myFile[0].path}
-                                            </Typography>
-                                            <Typography variant="subtitle1" component="p">
-                                                {myFile[0].size} bytes
-                                            </Typography>
-                                        </Box>
+                                <Box sx={{ ml: 2 }} style={{ display: "flex", alignItems: "center", opacity: 0.7 }}>
+                                    <InsertDriveFileIcon style={{ fontSize: 50 }} />
+                                    <Box sx={{ ml: 2 }}>
+                                        <Typography variant="p" component="p">
+                                            {myFile[0].path}
+                                        </Typography>
+                                        <Typography variant="subtitle1" component="p">
+                                            {myFile[0].size} bytes
+                                        </Typography>
                                     </Box>
-                                    <IconButton
-                                        aria-label="remove file"
-                                        sx={{ color: "#000", mr: 4 }}
-                                        onClick={removeAll}
-                                    >
-                                        <ClearIcon />
-                                    </IconButton>
                                 </Box>
+                                <IconButton aria-label="remove file" sx={{ color: "#000", mr: 2 }} onClick={removeAll}>
+                                    <ClearIcon />
+                                </IconButton>
                             </Box>
-                            <Button
-                                variant="contained"
-                                fullWidth
-                                sx={{ mt: 4, textTransform: "none" }}
-                                onClick={submitFile}
-                            >
-                                Analyze
-                            </Button>
-                        </>
-                    )}
-                </section>
+                        </Box>
+                        <FilePreview file={myFile[0]} />
+                        <Button
+                            variant="contained"
+                            fullWidth
+                            sx={{ mt: 2, textTransform: "none" }}
+                            onClick={submitFile}
+                        >
+                            Analyze
+                        </Button>
+                    </>
+                )}
+                {/* STEP 3 */}
+                <Step
+                    stepNum={"3"}
+                    description={"Choose the variable you'd like to predict"}
+                    isCompleted={userHasSelectedTarget}
+                />
+                {userHasSubmittedFile && !userHasSelectedTarget && (
+                    <SelectTarget
+                        options={targetOptions}
+                        target={target}
+                        setTarget={setTarget}
+                        inputValue={inputValue}
+                        setInputValue={setInputValue}
+                        setUserHasSelectedTarget={setUserHasSelectedTarget}
+                    />
+                )}
+                <Step stepNum={"4"} description={"Create your machine model"} isCompleted={false} />
+                {userHasSelectedTarget && <NameModel mlModelId={mlModelId} target={target} />}
             </Box>
         </CenterWrapper>
     );

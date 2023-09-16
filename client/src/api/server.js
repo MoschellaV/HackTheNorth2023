@@ -12,3 +12,14 @@ export const findPotentialTargets = (file, uid, modelId) => {
         },
     });
 };
+
+export const postTarget = (target, uid, modelId) => {
+    return axios({
+        method: "POST",
+        url: `${URL}/api/train/${uid}/${modelId}`,
+        data: { target: target },
+        headers: {
+            Accept: "application/json",
+        },
+    });
+};
