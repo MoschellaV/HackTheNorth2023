@@ -5,6 +5,7 @@ import os
 from pydantic import BaseModel
 import numpy as np
 import tensorflow as tf
+from math import floor
 
 app = FastAPI()
 
@@ -84,12 +85,11 @@ async def train_model(user_id: str, model_id: str, target: Train):
 
 @app.post("/api/predict/{user_id}/{model_id}/csv")
 async def upload_csv_predict(
-    user_id: str,
-    model_id: str,
-    file: UploadFile = File(...),
-    target: str = Form(...)
+        user_id: str,
+        model_id: str,
+        file: UploadFile = File(...),
+        target: str = Form(...)
 ):
-
     # change the file into a dataframe
     df = pd.read_csv(file.file)
     # call predict function
@@ -141,7 +141,6 @@ def train(df, remove_cols, target, user_id, model_id):
     target = df.pop(PREDICT_COL)
     print(len(df))
 
-
     target = target.astype('int')
     df = df.astype('int')
 
@@ -155,7 +154,7 @@ def train(df, remove_cols, target, user_id, model_id):
     normalizer.adapt(numeric_features.to_numpy())
     numeric_features = pd.DataFrame(numeric_features)
 
-    model = get_basic_model(normalizer, ENCODING)
+    model = get_basic_model(normalizer, ENCODING, numeric_features)
 
     # with open(f'./local/{user_id}/{model_id}/' + 'model.txt', 'w') as fh:
     #     model.summary(print_fn=lambda x: fh.write(x + '\n'))
@@ -173,15 +172,27 @@ def train(df, remove_cols, target, user_id, model_id):
             "predicted_column": PREDICT_COL, "accuracy": history.history['accuracy']}
 
 
-def get_basic_model(normalizer, encoding):
+def get_basic_model(normalizer, encoding, numeric_features):
+    nodes = len(numeric_features) / (4 * (len(numeric_features.iloc[0]) + len(encoding)))
+    res = 0
+    for i in range(floor(nodes), 0, -1):
+        if (i & (i - 1)) == 0:
+            res = i
+            break
+
+    lst = [res]
+    for i in range(3):
+        res /= 2
+        lst.append(res)
+
     model = tf.keras.Sequential([
         normalizer,
-        tf.keras.layers.Dense(128, activation='relu'),
-        tf.keras.layers.Dense(64, activation='relu'),
+        tf.keras.layers.Dense(lst[3], activation='relu'),
+        tf.keras.layers.Dense(lst[2], activation='relu'),
         tf.keras.layers.Dropout(0.2),
-        tf.keras.layers.Dense(32, activation='relu'),
+        tf.keras.layers.Dense(lst[1], activation='relu'),
         tf.keras.layers.Dropout(0.2),
-        tf.keras.layers.Dense(10, activation='relu'),
+        tf.keras.layers.Dense(lst[0], activation='relu'),
         tf.keras.layers.Dropout(0.2),
         tf.keras.layers.Dense(len(encoding), activation='sigmoid')
     ])
@@ -192,8 +203,8 @@ def get_basic_model(normalizer, encoding):
 
     return model
 
-def predict(df: pd.DataFrame, target, user_id, model_id):
 
+def predict(df: pd.DataFrame, target, user_id, model_id):
     # make sure the column that we are going to predict
     DATA_PATH = f'./local/{user_id}/{model_id}/data.csv'
 
@@ -225,5 +236,3 @@ def predict(df: pd.DataFrame, target, user_id, model_id):
     predictions = new_model.predict(np.array(numeric_features))
 
     return {"accuracy": predictions.history['accuracy']}
-
-
