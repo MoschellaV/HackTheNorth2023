@@ -14,11 +14,11 @@ function App() {
         <main>
             <Routes>
                 <Route path="/" element={<HomePage />}></Route>
-                <Route path="signup" element={<SignUpPage />} />
-                <Route path="login" element={<LoginPage />} />
+                <Route path="/signup" element={<SignUpPage />} />
+                <Route path="/login" element={<LoginPage />} />
 
                 <Route
-                    path="train"
+                    path="/train"
                     element={
                         <PrivateRoute>
                             <TrainPage />
@@ -26,7 +26,7 @@ function App() {
                     }
                 />
                 <Route
-                    path="your-models"
+                    path="/your-models"
                     element={
                         <PrivateRoute>
                             <AllModels />
@@ -35,7 +35,7 @@ function App() {
                 />
 
                 <Route
-                    path="your-models/:modelID"
+                    path="/your-models/:modelId"
                     element={
                         <PrivateRoute>
                             <ModelPage />
