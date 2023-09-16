@@ -6,6 +6,8 @@ from pydantic import BaseModel
 import numpy as np
 import tensorflow as tf
 from math import floor
+import time
+
 
 app = FastAPI()
 
@@ -76,10 +78,7 @@ async def train_model(user_id: str, model_id: str, target: Train):
     df = pd.read_csv(df)
 
     data = train(df, [], target.target, user_id, model_id)
-
-    # TODO: add actual train func
-
-    # call train function
+    
     return data
 
 
