@@ -42,9 +42,6 @@ export default function TrainPage(props) {
     function arrayToObjects(arr) {
         return arr.map((label) => ({ label }));
     }
-    useEffect(() => {
-        console.log(target);
-    }, [target]);
 
     const submitFile = async () => {
         const formData = new FormData();
@@ -72,7 +69,6 @@ export default function TrainPage(props) {
             });
     };
 
-    console.log(mlModelId);
     return (
         <CenterWrapper>
             <Box sx={{ my: 5 }}>
