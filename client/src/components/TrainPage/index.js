@@ -7,6 +7,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import { findPotentialTargets } from "../../api/server";
 import { useUserContext } from "../../context/UserContext";
 import { v4 as uuidv4 } from "uuid";
+import { storeModelData } from "../../utils/StoreModelData";
 
 export default function TrainPage(props) {
     const [myFile, setMyFile] = useState();
@@ -24,10 +25,17 @@ export default function TrainPage(props) {
         setMyFile();
     };
 
-    const submitFile = () => {
+    const submitFile = async () => {
         const formData = new FormData();
         formData.append("file", myFile[0]);
         const modelId = `model_${uuidv4()}`;
+
+        const data = {
+            modelId: modelId,
+            status: "Analyzing",
+        };
+
+        await storeModelData(data);
 
         findPotentialTargets(formData, userData.uid, modelId)
             .then((res) => {
