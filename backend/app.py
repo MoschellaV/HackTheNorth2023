@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import os
 from pydantic import BaseModel
+import numpy as np
+import tensorflow as tf
 
 app = FastAPI()
 
@@ -106,4 +108,58 @@ async def get_models(user_id: str):
 def train(df, target, user_id, model_id):
     SHUFFLE_BUFFER = 500
     BATCH_SIZE = 1024
-    return True
+
+    REMOVED_COL = "BookingID"
+    PREDICT_COL = "BookingStatus"
+    ENCODING = []
+
+    df = df.drop(REMOVED_COL, axis=1)  # axis: 0 for row, 1 for column
+
+    for col in df.columns:
+        if not all(isinstance(x, (int, float)) for x in df[col]):
+            lst = np.unique(df[col].astype(str))
+            if col == PREDICT_COL:
+                for i in range(len(lst)):
+                    ENCODING.append((i, lst[i]))
+            for i in range(len(lst)):
+                df[col] = df[col].replace(lst[i], i)
+
+    target = df.pop(PREDICT_COL)
+
+    target = target.astype('int')
+    df = df.astype('int')
+
+    numeric_feature_names = [name for name in df.columns]
+    numeric_features = df[numeric_feature_names]
+    numeric_features.head()
+    tf.convert_to_tensor(numeric_features)
+
+    normalizer = tf.keras.layers.Normalization(axis=-1)
+    normalizer.adapt(numeric_features.to_numpy())
+    numeric_features = pd.DataFrame(numeric_features)
+
+    model = get_basic_model(normalizer, ENCODING)
+    model.fit(numeric_features.to_numpy(), target, epochs=30, batch_size=BATCH_SIZE)
+
+    model.save(f'./local/{user_id}/{model_id}/model.h5')
+    return ENCODING
+
+
+def get_basic_model(normalizer, encoding):
+    model = tf.keras.Sequential([
+        normalizer,
+        tf.keras.layers.Dense(128, activation='relu'),
+        tf.keras.layers.Dense(64, activation='relu'),
+        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Dense(32, activation='relu'),
+        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Dense(10, activation='relu'),
+        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Dense(len(encoding), activation='sigmoid')
+    ])
+
+    model.compile(optimizer='adam',
+                  loss="sparse_categorical_crossentropy",  # tf.keras.losses.BinaryCrossentropy(from_logits=True)
+                  metrics=['accuracy'])
+
+    return model
