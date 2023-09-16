@@ -82,15 +82,25 @@ async def train_model(user_id: str, model_id: str, target: Train):
     return {"success": True}
 
 
-@app.post("/api/predict-upload/{user_id}/{model_id}")
-async def upload_csv_predict(user_id: str, model_id: str, file: UploadFile = File(...), delimiter: str = Form(',')):
+@app.post("/api/predict/{user_id}/{model_id}/csv")
+@app.post("/api/predict/{user_id}/{model_id}/csv")
+async def upload_csv_predict(
+    user_id: str,
+    model_id: str,
+    file: UploadFile = File(...),
+    target: str = Form(...)
+):
+    
+    # change the file into a dataframe
+    df = pd.read_csv(file.file)
+    # call predict function
+    predict(df, target, user_id, model_id)
+    
     pass
 
-
-@app.post("/api/predict/{user_id}/{model_id}")
-async def predict():
+@app.post("/api/predict/{user_id}/{model_id}/json")
+async def upload_json_predict(user_id: str, model_id: str, file: UploadFile = File(...)):
     pass
-
 
 # GET ALL MODELS FOR USER_ID
 @app.get("/api/models/{user_id}")
@@ -163,3 +173,6 @@ def get_basic_model(normalizer, encoding):
                   metrics=['accuracy'])
 
     return model
+
+def predict(df: pd.DataFrame):
+    pass
