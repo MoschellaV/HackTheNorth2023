@@ -1,8 +1,42 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Divider, Typography } from "@mui/material";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import { doc, onSnapshot } from "firebase/firestore";
+import { db } from "../../../firebase/firebase";
 
-export default function Model({ model }) {
+export default function Model({ model, shouldRefetch, setShouldRefetch }) {
+    const [docStatus, setDocStatus] = useState(model.status);
+
+    const getStatusColor = (status) => {
+        switch (status.toLowerCase()) {
+            case "completed":
+                return "#00CC00"; // green
+            case "building model":
+                return "#1976D2"; // blue
+            default:
+                return "#9E9E9E"; // gray
+        }
+    };
+
+    useEffect(() => {
+        if (model.modelId) {
+            const docRef = doc(db, "models", model.modelId);
+
+            const unsubscribe = onSnapshot(docRef, (snapshot) => {
+                const data = snapshot.data();
+                setDocStatus(data.status);
+
+                if (data.status === "Complete") {
+                    setShouldRefetch(!shouldRefetch);
+                }
+            });
+
+            return () => {
+                unsubscribe();
+            };
+        }
+    }, []);
+
     return (
         <>
             <Divider />
@@ -25,9 +59,17 @@ export default function Model({ model }) {
                     </Typography>
                 </Box>
                 <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <Box sx={{ borderRadius: "50%", backgroundColor: "#00C851", width: 10, height: 10, mr: 1 }} />
-                    <Typography component="p" variant="subtitle1">
-                        {model.status}
+                    <Box
+                        sx={{
+                            borderRadius: "50%",
+                            backgroundColor: getStatusColor(docStatus),
+                            width: 10,
+                            height: 10,
+                            mr: 1,
+                        }}
+                    />
+                    <Typography component="p" variant="subtitle1" sx={{ fontSize: 16 }}>
+                        {docStatus}
                     </Typography>
                 </Box>
             </Box>

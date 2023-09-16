@@ -9,12 +9,14 @@ export default function AllModels() {
     const { userData } = useUserContext();
     const [models, setModels] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [shouldRefetch, setShouldRefetch] = useState("");
 
     useEffect(() => {
         setLoading(true);
         getModelsByUserId(userData.uid)
-            .then((modelsData) => {
-                setModels(modelsData);
+            .then((data) => {
+                const sortedData = data.sort((a, b) => b.createdAt - a.createdAt);
+                setModels(sortedData);
                 setLoading(false);
             })
             .catch((error) => {
@@ -31,7 +33,14 @@ export default function AllModels() {
                 </Typography>
                 {!loading ? (
                     models.length > 0 ? (
-                        models.map((model) => <Model key={model.modelId} model={model} />)
+                        models.map((model) => (
+                            <Model
+                                key={model.modelId}
+                                model={model}
+                                shouldRefetch={shouldRefetch}
+                                setShouldRefetch={setShouldRefetch}
+                            />
+                        ))
                     ) : (
                         <>
                             <Typography variant="p" component="p" sx={{ mb: 2, opacity: 0.5, fontSize: 24 }}>
