@@ -93,7 +93,7 @@ async def upload_csv_predict(
     # change the file into a dataframe
     df = pd.read_csv(file.file)
     # call predict function
-    predict(df, target, user_id, model_id)
+    return predict(df, target, user_id, model_id)
 
 
 @app.post("/api/predict/{user_id}/{model_id}/json")
@@ -116,8 +116,8 @@ async def get_models(user_id: str):
 
 def train(df, remove_cols, target, user_id, model_id):
     SHUFFLE_BUFFER = 500
-    BATCH_SIZE = 32
-    EPOCHS = 90
+    BATCH_SIZE = 64 # 32
+    EPOCHS = 50 # 100
 
     REMOVED_COL = remove_cols
     REMOVED_COL.append("BookingID")
@@ -173,7 +173,7 @@ def train(df, remove_cols, target, user_id, model_id):
 
 
 def get_basic_model(normalizer, encoding, numeric_features):
-    nodes = len(numeric_features) / (4 * (len(numeric_features.iloc[0]) + len(encoding)))
+    nodes = len(numeric_features) / (5 * (len(numeric_features.iloc[0]) + len(encoding)))
     res = 0
     for i in range(floor(nodes), 0, -1):
         if (i & (i - 1)) == 0:
@@ -184,15 +184,16 @@ def get_basic_model(normalizer, encoding, numeric_features):
     for i in range(3):
         res /= 2
         lst.append(res)
+    print(res)
 
     model = tf.keras.Sequential([
         normalizer,
-        tf.keras.layers.Dense(lst[3], activation='relu'),
-        tf.keras.layers.Dense(lst[2], activation='relu'),
-        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Dense(lst[0], activation='relu'),
         tf.keras.layers.Dense(lst[1], activation='relu'),
         tf.keras.layers.Dropout(0.2),
-        tf.keras.layers.Dense(lst[0], activation='relu'),
+        tf.keras.layers.Dense(lst[2], activation='relu'),
+        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Dense(lst[3], activation='relu'),
         tf.keras.layers.Dropout(0.2),
         tf.keras.layers.Dense(len(encoding), activation='sigmoid')
     ])
@@ -200,18 +201,15 @@ def get_basic_model(normalizer, encoding, numeric_features):
     model.compile(optimizer='adam',
                   loss="sparse_categorical_crossentropy",  # tf.keras.losses.BinaryCrossentropy(from_logits=True)
                   metrics=['accuracy'])
-
     return model
 
 
 def predict(df: pd.DataFrame, target, user_id, model_id):
     # make sure the column that we are going to predict
-    DATA_PATH = f'./local/{user_id}/{model_id}/data.csv'
 
     REMOVED_COL = "BookingID"
-    PREDICT_COL = "BookingStatus"
+    PREDICT_COL = target
 
-    df = pd.read_csv(DATA_PATH)
     df = df.drop(REMOVED_COL, axis=1)  # axis: 0 for row, 1 for column
 
     for col in df.columns:
@@ -231,8 +229,9 @@ def predict(df: pd.DataFrame, target, user_id, model_id):
     normalizer.adapt(numeric_features.to_numpy())
 
     new_model = tf.keras.models.load_model(
-        '../backend/local/UAQ3GzHi8TNmOS9qjtnEroOcIuy2/model_ac699aad-290c-47bc-8f7c-a80eb84b0b01/model')
+        f'../backend/local/{user_id}/{model_id}/model')
 
     predictions = new_model.predict(np.array(numeric_features))
 
-    return {"accuracy": predictions.history['accuracy']}
+    # TODO: add a good return value.
+    return {"success": True}
