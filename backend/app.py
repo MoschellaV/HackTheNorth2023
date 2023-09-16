@@ -74,7 +74,7 @@ async def train_model(user_id: str, model_id: str, target: Train):
     df = os.path.join(".", "local", user_id, model_id, "data.csv")
     df = pd.read_csv(df)
 
-    data = train(df, target.target, user_id, model_id)
+    data = train(df, [], target.target, user_id, model_id)
 
     # TODO: add actual train func
 
@@ -114,16 +114,19 @@ async def get_models(user_id: str):
     return {"models": models}
 
 
-def train(df, target, user_id, model_id):
+def train(df, remove_cols, target, user_id, model_id):
     SHUFFLE_BUFFER = 500
     BATCH_SIZE = 32
     EPOCHS = 90
 
-    REMOVED_COL = "BookingID"
-    PREDICT_COL = "BookingStatus"
+    REMOVED_COL = remove_cols
+    REMOVED_COL.append("BookingID")
+    PREDICT_COL = target
     ENCODING = []
 
-    df = df.drop(REMOVED_COL, axis=1)  # axis: 0 for row, 1 for column
+    for i in range(len(REMOVED_COL)):
+        df = df.drop(REMOVED_COL[i], axis=1)
+    # df = df.drop(REMOVED_COL, axis=1)  # axis: 0 for row, 1 for column
 
     for col in df.columns:
         if not all(isinstance(x, (int, float)) for x in df[col]):
@@ -134,12 +137,16 @@ def train(df, target, user_id, model_id):
             for i in range(len(lst)):
                 df[col] = df[col].replace(lst[i], i)
 
+    print(len(df))
     target = df.pop(PREDICT_COL)
+    print(len(df))
+
 
     target = target.astype('int')
     df = df.astype('int')
 
     numeric_feature_names = [name for name in df.columns]
+    print(len(numeric_feature_names))
     numeric_features = df[numeric_feature_names]
     numeric_features.head()
     tf.convert_to_tensor(numeric_features)
@@ -159,7 +166,7 @@ def train(df, target, user_id, model_id):
 
     history = model.fit(numeric_features.to_numpy(), target, epochs=EPOCHS, batch_size=BATCH_SIZE)
 
-    model.save(f'./local/{user_id}/{model_id}/model.h5')
+    model.save(f'./local/{user_id}/{model_id}/model', save_format='tf')
 
     # epochs directly relate to the amount of numbers inside of the accuracy list
     return {"model_summary": model_summary, "encoding": ENCODING, "epochs": EPOCHS, "batches": BATCH_SIZE,
@@ -185,5 +192,38 @@ def get_basic_model(normalizer, encoding):
 
     return model
 
-def predict(df: pd.DataFrame):
-    pass
+def predict(df: pd.DataFrame, target, user_id, model_id):
+
+    # make sure the column that we are going to predict
+    DATA_PATH = f'./local/{user_id}/{model_id}/data.csv'
+
+    REMOVED_COL = "BookingID"
+    PREDICT_COL = "BookingStatus"
+
+    df = pd.read_csv(DATA_PATH)
+    df = df.drop(REMOVED_COL, axis=1)  # axis: 0 for row, 1 for column
+
+    for col in df.columns:
+        if not all(isinstance(x, (int, float)) for x in df[col]):
+            lst = np.unique(df[col].astype(str))
+            for i in range(len(lst)):
+                df[col] = df[col].replace(lst[i], i)
+
+    df = df.astype('int')
+    numeric_feature_names = [name for name in df.columns]
+    print(len(numeric_feature_names))
+
+    numeric_features = df[numeric_feature_names]
+    numeric_features.head()
+    tf.convert_to_tensor(numeric_features)
+    normalizer = tf.keras.layers.Normalization(axis=-1)
+    normalizer.adapt(numeric_features.to_numpy())
+
+    new_model = tf.keras.models.load_model(
+        '../backend/local/UAQ3GzHi8TNmOS9qjtnEroOcIuy2/model_ac699aad-290c-47bc-8f7c-a80eb84b0b01/model')
+
+    predictions = new_model.predict(np.array(numeric_features))
+
+    return {"accuracy": predictions.history['accuracy']}
+
+
