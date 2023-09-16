@@ -8,7 +8,9 @@ app = FastAPI()
 # UPLOAD CSV FILE AND RETURN POSSIBLE COLUMNS
 @app.post("/api/upload/{user_id}/{model_id}")
 async def upload_csv(user_id: str, model_id: str, file: UploadFile = File(...), delimiter: str = Form(',')):
-    # 'user_id' and 'model_id' parameters will now capture the respective path parameters.
+
+    if not delimiter:
+        delimiter = ','
 
     # The 'file' parameter is used to receive the uploaded CSV file.
     # The 'delimiter' parameter is used to specify the delimiter used in the CSV file (default is comma ',').
@@ -23,7 +25,6 @@ async def upload_csv(user_id: str, model_id: str, file: UploadFile = File(...), 
     # For example, you can parse it using the specified delimiter.
     lines = csv_content.decode('latin-1').splitlines()
 
-    # print out the header for each column
     header = lines[0].split(delimiter)
 
     # Check for "local" directory
