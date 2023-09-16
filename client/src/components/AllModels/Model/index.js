@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Box, Divider, Typography } from "@mui/material";
+import { Box, Divider, Typography, CircularProgress } from "@mui/material";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../../../firebase/firebase";
+import moment from "moment";
 
 export default function Model({ model, shouldRefetch, setShouldRefetch }) {
     const [docStatus, setDocStatus] = useState(model.status);
@@ -37,25 +38,45 @@ export default function Model({ model, shouldRefetch, setShouldRefetch }) {
         }
     }, []);
 
+    function formatDateFromUnix(unixTimestamp) {
+        const dateMoment = moment.unix(unixTimestamp / 1000); // Convert from milliseconds to seconds
+        const formattedDate = dateMoment.format("MMM Do, YYYY");
+        return formattedDate;
+    }
+
     return (
         <>
             <Divider />
             <Box sx={{ p: 2, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <Box>
-                    <a href={`/your-model/${model.modelId}`}>
+                    {docStatus === "Completed" ? (
+                        <a href={`/your-model/${model.modelId}`} target="_blank" rel="noreferrer">
+                            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                                <Typography
+                                    component="p"
+                                    variant="h5"
+                                    sx={{ fontSize: 30, textDecoration: "underline" }}
+                                >
+                                    {model.name}
+                                </Typography>
+
+                                <OpenInNewIcon style={{ fontSize: 35, marginLeft: 10 }} />
+                            </Box>
+                        </a>
+                    ) : (
                         <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                            <Typography component="p" variant="h5" sx={{ fontSize: 30, textDecoration: "underline" }}>
+                            <Typography component="p" variant="h5" sx={{ fontSize: 30, mr: 2 }}>
                                 {model.name}
                             </Typography>
-
-                            <OpenInNewIcon style={{ fontSize: 35, marginLeft: 10 }} />
+                            <CircularProgress style={{ width: 25, height: 25 }} />
                         </Box>
-                    </a>
+                    )}
                     <Typography component="p" variant="subtitle1" sx={{ fontWeight: 400, opacity: 0.5 }}>
-                        Predicts: {model.target}
+                        Predicts {model.target}
                     </Typography>
                     <Typography component="p" variant="subtitle1" sx={{ fontWeight: 400, opacity: 0.5 }}>
-                        Id: {model.modelId}
+                        {/* Id: {model.modelId} */}
+                        Created on {formatDateFromUnix(model.createdAt)}
                     </Typography>
                 </Box>
                 <Box sx={{ display: "flex", alignItems: "center" }}>
