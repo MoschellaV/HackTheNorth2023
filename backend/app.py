@@ -3,15 +3,19 @@ from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import os
 from pydantic import BaseModel
+import numpy as np
+import tensorflow as tf
 
 app = FastAPI()
+
 
 class Train(BaseModel):
     target: str
 
+
 origins = [
     "http://localhost:3000",  # Adjust this to your frontend's address
-    "http://yourfrontenddomain.com",
+    "localhost:3000",
     "http://127.0.0.1:3000"
 ]
 
@@ -23,10 +27,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # UPLOAD CSV FILE AND RETURN POSSIBLE COLUMNS
 @app.post("/api/train-upload/{user_id}/{model_id}")
 async def upload_csv(user_id: str, model_id: str, file: UploadFile = File(...)):
-
     delimiter = ','
 
     # The 'file' parameter is used to receive the uploaded CSV file.
@@ -64,11 +68,12 @@ async def upload_csv(user_id: str, model_id: str, file: UploadFile = File(...)):
 
     return {"columns": header}
 
+
 @app.post("/api/train/{user_id}/{model_id}")
 async def train_model(user_id: str, model_id: str, target: Train):
     df = os.path.join(".", "local", user_id, model_id, "data.csv")
     df = pd.read_csv(df)
-    
+
     train(df, target.target, user_id, model_id)
 
     # TODO: add actual train func
@@ -76,13 +81,16 @@ async def train_model(user_id: str, model_id: str, target: Train):
     # call train function
     return {"success": True}
 
+
 @app.post("/api/predict-upload/{user_id}/{model_id}")
 async def upload_csv_predict(user_id: str, model_id: str, file: UploadFile = File(...), delimiter: str = Form(',')):
     pass
 
+
 @app.post("/api/predict/{user_id}/{model_id}")
 async def predict():
     pass
+
 
 # GET ALL MODELS FOR USER_ID
 @app.get("/api/models/{user_id}")
@@ -90,11 +98,68 @@ async def get_models(user_id: str):
     # check if local directory exists or local/user_id exists
     if not os.path.exists("local") and not os.path.exists(os.path.join("local", user_id)):
         return {"error": "No models found."}
-    
+
     # get all models for user_id
     models = os.listdir(os.path.join("local", user_id))
 
     return {"models": models}
 
+
 def train(df, target, user_id, model_id):
-    return True
+    SHUFFLE_BUFFER = 500
+    BATCH_SIZE = 1024
+
+    REMOVED_COL = "BookingID"
+    PREDICT_COL = "BookingStatus"
+    ENCODING = []
+
+    df = df.drop(REMOVED_COL, axis=1)  # axis: 0 for row, 1 for column
+
+    for col in df.columns:
+        if not all(isinstance(x, (int, float)) for x in df[col]):
+            lst = np.unique(df[col].astype(str))
+            if col == PREDICT_COL:
+                for i in range(len(lst)):
+                    ENCODING.append((i, lst[i]))
+            for i in range(len(lst)):
+                df[col] = df[col].replace(lst[i], i)
+
+    target = df.pop(PREDICT_COL)
+
+    target = target.astype('int')
+    df = df.astype('int')
+
+    numeric_feature_names = [name for name in df.columns]
+    numeric_features = df[numeric_feature_names]
+    numeric_features.head()
+    tf.convert_to_tensor(numeric_features)
+
+    normalizer = tf.keras.layers.Normalization(axis=-1)
+    normalizer.adapt(numeric_features.to_numpy())
+    numeric_features = pd.DataFrame(numeric_features)
+
+    model = get_basic_model(normalizer, ENCODING)
+    model.fit(numeric_features.to_numpy(), target, epochs=30, batch_size=BATCH_SIZE)
+
+    model.save(f'./local/{user_id}/{model_id}/model.h5')
+    return ENCODING
+
+
+def get_basic_model(normalizer, encoding):
+    model = tf.keras.Sequential([
+        normalizer,
+        tf.keras.layers.Dense(128, activation='relu'),
+        tf.keras.layers.Dense(64, activation='relu'),
+        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Dense(32, activation='relu'),
+        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Dense(10, activation='relu'),
+        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Dense(len(encoding), activation='sigmoid')
+    ])
+
+    model.compile(optimizer='adam',
+                  loss="sparse_categorical_crossentropy",  # tf.keras.losses.BinaryCrossentropy(from_logits=True)
+                  metrics=['accuracy'])
+
+    return model
