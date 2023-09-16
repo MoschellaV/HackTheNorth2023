@@ -40,7 +40,7 @@ function Home() {
           <h1>
             Welcome To
             <br />
-            <span>DropModel</span>
+            <span><keyword className = "keyword">Drop</keyword>Model</span>
           </h1>
           <p>Transform your data into intelligence with DropModel's cutting-edge platform. 
             Simply upload your dataset, select your prediction variable, and watch as your machine model is created automatically. 
