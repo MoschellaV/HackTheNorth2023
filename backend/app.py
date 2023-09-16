@@ -17,6 +17,7 @@ app = FastAPI()
 # initialize firebase 
 cred = credentials.Certificate('./serviceAccountKey.json')
 firebase_admin.initialize_app(cred)
+db = firestore.client()
 
 
 class Train(BaseModel):
@@ -188,9 +189,21 @@ def train(df, remove_cols, target, user_id, model_id):
     trainable_params = trainable_line.split(":")[1].strip().split(" ")[0]
     final_accuracy = history.history['accuracy'][-1]
 
-    # epochs directly relate to the amount of numbers inside of the accuracy list
-    return {"model_summary": model_summary, "encoding": ENCODING, "epochs": EPOCHS, "batches": BATCH_SIZE,
-            "predicted_column": PREDICT_COL, "accuracy": history.history['accuracy']}
+    # store data in firebase 
+    document_ref = db.collection('models').document(model_id)
+    data_to_add = {
+        'model_type': model_name,
+        'trainable_params': trainable_params,
+        "final_accuracy": final_accuracy,
+        "all_accuracy": history.history['accuracy'],
+        "encoding": {str(item[0]): item[1] for item in ENCODING},
+        "epochs": EPOCHS,
+    }
+
+    document_ref.update(data_to_add)
+
+    return {"success": True}
+  
 
 
 def get_basic_model(normalizer, encoding, numeric_features):
