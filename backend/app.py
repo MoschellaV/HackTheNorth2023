@@ -69,6 +69,8 @@ async def upload_csv(user_id: str, model_id: str, file: UploadFile = File(...)):
     with open(os.path.join(model_path, "data.csv"), "wb") as f:
         f.write(csv_content)
 
+    # TODO: Return only good headers
+
     return {"columns": header}
 
 
@@ -78,7 +80,6 @@ async def train_model(user_id: str, model_id: str, target: Train):
     df = pd.read_csv(df)
 
     data = train(df, [], target.target, user_id, model_id)
-    
     return data
 
 
