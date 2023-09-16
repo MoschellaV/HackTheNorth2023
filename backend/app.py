@@ -83,7 +83,6 @@ async def train_model(user_id: str, model_id: str, target: Train):
 
 
 @app.post("/api/predict/{user_id}/{model_id}/csv")
-@app.post("/api/predict/{user_id}/{model_id}/csv")
 async def upload_csv_predict(
     user_id: str,
     model_id: str,
@@ -95,8 +94,7 @@ async def upload_csv_predict(
     df = pd.read_csv(file.file)
     # call predict function
     predict(df, target, user_id, model_id)
-    
-    pass
+
 
 @app.post("/api/predict/{user_id}/{model_id}/json")
 async def upload_json_predict(user_id: str, model_id: str, file: UploadFile = File(...)):
