@@ -1,4 +1,5 @@
 from fastapi import FastAPI, File, Form, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import os
 from pydantic import BaseModel
@@ -8,13 +9,26 @@ app = FastAPI()
 class Train(BaseModel):
     target: str
 
+origins = [
+    "http://localhost:3000",  # Adjust this to your frontend's address
+    "http://yourfrontenddomain.com",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 
 # UPLOAD CSV FILE AND RETURN POSSIBLE COLUMNS
 @app.post("/api/train-upload/{user_id}/{model_id}")
-async def upload_csv(user_id: str, model_id: str, file: UploadFile = File(...), delimiter: str = Form(',')):
+async def upload_csv(user_id: str, model_id: str, file: UploadFile = File(...)):
 
-    if not delimiter:
-        delimiter = ','
+    delimiter = ','
 
     # The 'file' parameter is used to receive the uploaded CSV file.
     # The 'delimiter' parameter is used to specify the delimiter used in the CSV file (default is comma ',').
