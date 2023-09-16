@@ -133,13 +133,13 @@ def train(df, remove_cols, target, user_id, model_id):
     BATCH_SIZE = 64  # 32
     EPOCHS = 50  # 100
 
-    REMOVED_COL = remove_cols
-    REMOVED_COL.append("BookingID")
+    REMOVED_COLS = remove_cols
+    REMOVED_COLS.append("BookingID")
     PREDICT_COL = target
     ENCODING = []
 
-    for i in range(len(REMOVED_COL)):
-        df = df.drop(REMOVED_COL[i], axis=1)
+    for i in range(len(REMOVED_COLS)):
+        df = df.drop(REMOVED_COLS[i], axis=1)
     # df = df.drop(REMOVED_COL, axis=1)  # axis: 0 for row, 1 for column
 
     for col in df.columns:
@@ -178,6 +178,15 @@ def train(df, remove_cols, target, user_id, model_id):
     model.save(f'./local/{user_id}/{model_id}/model', save_format='tf')
 
     update_job_status(model_id, "Completed")
+
+    # Extract model name
+    model_line = [line for line in model_summary if "Model:" in line][0]
+    model_name = model_line.split("\"")[1]
+
+    # Extract trainable params
+    trainable_line = [line for line in model_summary if "Trainable params:" in line][0]
+    trainable_params = trainable_line.split(":")[1].strip().split(" ")[0]
+    final_accuracy = history.history['accuracy'][-1]
 
     # epochs directly relate to the amount of numbers inside of the accuracy list
     return {"model_summary": model_summary, "encoding": ENCODING, "epochs": EPOCHS, "batches": BATCH_SIZE,
@@ -246,4 +255,4 @@ def predict(df: pd.DataFrame, target, user_id, model_id):
     predictions = new_model.predict(np.array(numeric_features))
 
     # TODO: add a good return value.
-    return {"success": True}
+    return {"predictions": predictions}
