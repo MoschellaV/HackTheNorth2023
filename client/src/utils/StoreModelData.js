@@ -4,6 +4,7 @@ import { db } from "../firebase/firebase";
 export const storeModelData = async (data) => {
     try {
         await setDoc(doc(db, "models", data.modelId), {
+            uid: data.uid,
             modelId: data.modelId,
             status: data.status,
         });

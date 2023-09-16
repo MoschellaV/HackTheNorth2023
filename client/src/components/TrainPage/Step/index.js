@@ -13,7 +13,7 @@ export default function Step({ stepNum, description, isCompleted }) {
                 </Typography>
                 <Box sx={{ mr: 2 }}>
                     {isCompleted ? (
-                        <CheckCircleIcon style={{ color: "00C851" }} />
+                        <CheckCircleIcon style={{ color: "#00C851" }} />
                     ) : (
                         <CheckCircleOutlineIcon style={{ color: "#cbcbcb" }} />
                     )}
