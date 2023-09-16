@@ -98,7 +98,10 @@ async def upload_csv_predict(
 
 @app.post("/api/predict/{user_id}/{model_id}/json")
 async def upload_json_predict(user_id: str, model_id: str, file: UploadFile = File(...)):
-    pass
+    # transform user input into a dataframe
+    df = pd.read_json(file.file)
+    # call predict function
+    predict(df, user_id, model_id)
 
 
 # GET ALL MODELS FOR USER_ID
