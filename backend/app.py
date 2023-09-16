@@ -1,8 +1,12 @@
 from fastapi import FastAPI, File, Form, UploadFile
 import pandas as pd
 import os
+from pydantic import BaseModel
 
 app = FastAPI()
+
+class Train(BaseModel):
+    target: str
 
 
 # UPLOAD CSV FILE AND RETURN POSSIBLE COLUMNS
@@ -46,6 +50,10 @@ async def upload_csv(user_id: str, model_id: str, file: UploadFile = File(...), 
         f.write(csv_content)
 
     return {"columns": header}
+
+@app.post("/api/train/{user_id}/{model_id}")
+async def train_model(user_id: str, model_id: str, target: Train):
+    pass
 
 
 # GET ALL MODELS FOR USER_ID
