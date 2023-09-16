@@ -239,12 +239,15 @@ def get_basic_model(normalizer, encoding, numeric_features):
 
 
 def predict(df: pd.DataFrame, target, user_id, model_id):
-    # make sure the column that we are going to predict
 
-    REMOVED_COL = "BookingID"
-    PREDICT_COL = target
+    id_columns = []
+    # check each column, if it increments by 1, it is an id column
+    for col in df.columns:
+        if df[col].is_monotonic_increasing:
+            id_columns.append(col)
 
-    df = df.drop(REMOVED_COL, axis=1)  # axis: 0 for row, 1 for column
+    for col in id_columns:
+        df = df.drop(col, axis=1)
 
     for col in df.columns:
         if not all(isinstance(x, (int, float)) for x in df[col]):
