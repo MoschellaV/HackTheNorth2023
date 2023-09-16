@@ -53,17 +53,30 @@ async def upload_csv(user_id: str, model_id: str, file: UploadFile = File(...), 
 
 @app.post("/api/train/{user_id}/{model_id}")
 async def train_model(user_id: str, model_id: str, target: Train):
-    pass
+    df = os.path.join(".", "local", user_id, model_id, "data.csv")
+    # print type of df
+    print(type(df))
+    train(df, target.target)
 
+    # TODO: add actual train func
+
+    # call train function
+    return {"success": True}
+
+
+@app.post("/api/predict/{user_id}/{model_id}")
 
 # GET ALL MODELS FOR USER_ID
 @app.get("/api/models/{user_id}")
 async def get_models(user_id: str):
     # check if local directory exists or local/user_id exists
-    if not os.path.exists("local") or not os.path.exists(os.path.join("local", user_id)):
+    if not os.path.exists("local") and not os.path.exists(os.path.join("local", user_id)):
         return {"error": "No models found."}
     
     # get all models for user_id
     models = os.listdir(os.path.join("local", user_id))
 
     return {"models": models}
+
+def train(df, target):
+    return True
