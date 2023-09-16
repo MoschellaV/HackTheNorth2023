@@ -21,7 +21,6 @@ export default function TrainPage(props) {
     const [userHasSelectedTarget, setUserHasSelectedTarget] = useState(false); // step three check
     const [targetOptions, setTargetOptions] = useState([]);
     const [mlModelId, setMLModelId] = useState("");
-    const [name, setName] = useState("");
 
     // for target
     const [target, setTarget] = useState("");
