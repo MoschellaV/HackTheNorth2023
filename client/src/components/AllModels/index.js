@@ -46,7 +46,7 @@ export default function AllModels() {
                             <Typography variant="p" component="p" sx={{ mb: 2, opacity: 0.5, fontSize: 24 }}>
                                 Looks like you haven't created any machine models
                             </Typography>
-                            <a href="/train" target="_blank">
+                            <a href="/train">
                                 <Button variant="contained" sx={{ textTransform: "none" }}>
                                     Create your first
                                 </Button>
