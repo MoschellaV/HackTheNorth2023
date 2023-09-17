@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { fetchDocument } from "../../utils/FetchDoc";
-import { Box, Button, Typography, CircularProgress, Menu, MenuItem } from "@mui/material";
+import { Box, Button, Typography, CircularProgress, Menu, MenuItem, Grid } from "@mui/material";
 import CenterWrapperWide from "../CenterWrapperWide";
 import PredictionStats from "./PredictionStats";
 import AddIcon from "@mui/icons-material/Add";
@@ -9,12 +9,24 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import DeleteModal from "./DeleteModal";
 import DataObjectIcon from "@mui/icons-material/DataObject";
 import TextSnippetIcon from "@mui/icons-material/TextSnippet";
+import PredictionCSVModal from "./PredictionCSVModal";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import PastPredictions from "./PastPredictions";
+import { getSubcollectionDocs } from "../../utils/GetSubcollectionsDocs";
 
 export default function ModelPage() {
     const [data, setData] = useState();
     const [loading, setLoading] = useState(false);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
+    const [shouldRefetch, setShouldRefetch] = useState(false);
 
+    //predictions
+    const [predictions, setPredictions] = useState([]);
+
+    // csv prediction modal
+    const [openCSVModal, setOpenCSVModal] = useState(false);
+
+    // delete modal
     const [anchorEl, setAnchorEl] = React.useState(null);
     const openAnchor = Boolean(anchorEl);
     const handleClickDropdown = (event) => {
@@ -37,6 +49,17 @@ export default function ModelPage() {
         getDocData();
     }, [params.modelId]);
 
+    useEffect(() => {
+        console.log("ran");
+        const getPastPredictions = async () => {
+            const temp = await getSubcollectionDocs("models", params.modelId, "predictions");
+            const sortedData = temp.sort((a, b) => b.data.time - a.data.time);
+            // console.log("temps: " + temp[0].time);
+            setPredictions(sortedData);
+        };
+        getPastPredictions();
+    }, [shouldRefetch, params.modelId]);
+
     return data ? (
         <>
             <DeleteModal
@@ -44,12 +67,30 @@ export default function ModelPage() {
                 openDeleteModal={openDeleteModal}
                 setOpenDeleteModal={setOpenDeleteModal}
             />
+            <PredictionCSVModal
+                shouldRefetch={shouldRefetch}
+                setShouldRefetch={setShouldRefetch}
+                encoding={data.encoding}
+                target={data.target}
+                modelId={data.modelId}
+                openCSVModal={openCSVModal}
+                setOpenCSVModal={setOpenCSVModal}
+            />
             <CenterWrapperWide>
                 <Box sx={{ my: 5 }}>
-                    <Typography component="p" variant="body1" sx={{ fontSize: 16 }}>
-                        Model
+                    <Typography component="p" variant="body1" sx={{ fontSize: 16, opacity: 0.7 }}>
+                        <a
+                            href="/your-models"
+                            style={{
+                                textDecoration: "underline",
+                            }}
+                        >
+                            My Models
+                        </a>
+                        <NavigateNextIcon sx={{ mx: 0.5 }} />
+                        {data.modelId}
                     </Typography>
-                    <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
                         <Box>
                             <Typography component="h2" variant="h2">
                                 {data.name}
@@ -90,7 +131,12 @@ export default function ModelPage() {
                                     "aria-labelledby": "basic-button",
                                 }}
                             >
-                                <MenuItem onClick={handleCloseDropdown}>
+                                <MenuItem
+                                    onClick={() => {
+                                        handleCloseDropdown();
+                                        setOpenCSVModal(true);
+                                    }}
+                                >
                                     <TextSnippetIcon sx={{ mr: 1 }} /> Upload CSV
                                 </MenuItem>
                                 <MenuItem onClick={handleCloseDropdown}>
@@ -128,6 +174,11 @@ export default function ModelPage() {
                         </Box>
                     </Box>
                     <PredictionStats data={data} />
+                    <Grid container>
+                        <Grid item md={6} xs={12}>
+                            <PastPredictions predictions={predictions} />
+                        </Grid>
+                    </Grid>
                 </Box>
             </CenterWrapperWide>
         </>

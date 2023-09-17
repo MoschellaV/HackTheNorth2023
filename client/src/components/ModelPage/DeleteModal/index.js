@@ -32,7 +32,11 @@ export default function DeleteModal({ modelId, openDeleteModal, setOpenDeleteMod
                         p: 2,
                     }}
                 >
-                    <Typography variant="p" component="p" sx={{ textAlign: "center", fontSize: 20, fontWeight: 600 }}>
+                    <Typography
+                        variant="p"
+                        component="p"
+                        sx={{ textAlign: "center", fontSize: 20, fontWeight: 600, maxWidth: "70%" }}
+                    >
                         Are you sure you want to delete this model?
                     </Typography>
 
