@@ -1,8 +1,31 @@
-/* Add this CSS to your stylesheets or use a styled-components approach */
-.login-container {
+.signup-page {
     display: flex;
-    justify-content: flex-end; /* This moves the content to the right */
     height: 100vh;
-    /* Add any other styling you need */
-  }
-  
+}
+
+.blue-side {
+    flex: 1;
+    background-color: rgb(255, 255, 255);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.blue-rectangle {
+    background-color: #0c3c72;
+    width: 95%; /* Adjust the width to control the division */
+    height: 95%;
+    border-radius: 20px;
+    opacity: 0.9;
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+}
+
+.login-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Rest of your CSS remains unchanged */
