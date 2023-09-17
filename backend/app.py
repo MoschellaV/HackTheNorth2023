@@ -331,20 +331,26 @@ def predict(df: pd.DataFrame, target, user_id, model_id, encoding):
     # loop through 2d array columns first
     for i in range(len(predictions[0])):
         for j in range(len(predictions)):
+            if len(predictions[0]) == 0:
+                highestAverages[i] = 0
             if predictions[j][i] > 1 / len(predictions[0]):
                 highestAverages[i] += predictions[j][i]
 
     for i in range(len(highestAverages)):
-        highestAverages[i] = highestAverages[i] / frequencies[i]
+        if frequencies[i] != 0:
+            highestAverages[i] = highestAverages[i] / frequencies[i]
+        else:
+            highestAverages[i] = 0
 
     total = len(predictions)
 
     likelihood = [0] * len(predictions[0])
     for i in range(len(predictions[0])):
-        likelihood[i] = frequencies[i] / total
+        if total != 0:
+            likelihood[i] = frequencies[i] / total
+        else:
+            likelihood[i] = 0
 
-
-    print(encoding)
     freq2 = {}
     for i in range(len(frequencies)):
         freq2[encoding[str(i)]] = frequencies[i]
