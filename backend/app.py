@@ -11,8 +11,9 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
 from helper import update_job_status
+from sklearn.model_selection import train_test_split
 
-import tensorflow_data_validation as tfdv
+
 
 
 app = FastAPI()
@@ -97,7 +98,9 @@ async def train_model(user_id: str, model_id: str, target: Train):
     df = os.path.join(".", "local", user_id, model_id, "data.csv")
     df = pd.read_csv(df)
 
-    data = train(df, [], target.target, user_id, model_id)
+    train_df, test_df = train_test_split(df, test_size=0.3)
+
+    data = train(train_df, test_df, [], target.target, user_id, model_id)
     return data
 
 
@@ -135,62 +138,89 @@ async def get_models(user_id: str):
     return {"models": models}
 
 
-def train(df, remove_cols, target, user_id, model_id):
+def train(train_df, test_df, remove_cols, target, user_id, model_id):
     BATCH_SIZE = 64  # 32
     EPOCHS = 50  # 100
 
     # Print the shape of your data
     id_columns = []
     # check each column, if it increments by 1, it is an id column
-    print(len(df))
-    for col in df.columns:
-        if df[col].is_monotonic_increasing:
+    print(len(train_df))
+    for col in train_df.columns:
+        if train_df[col].is_monotonic_increasing:
             id_columns.append(col)
-
-    print(len(df))
 
 
     for col in id_columns:
-        df = df.drop(col, axis=1)
+        train_df = train_df.drop(col, axis=1)
     PREDICT_COL = target
     ENCODING = []
 
-    for col in df.columns:
-        if not all(isinstance(x, (int, float)) for x in df[col]):
-            lst = np.unique(df[col].astype(str))
+
+
+    for col in train_df.columns:
+        if not all(isinstance(x, (int, float)) for x in train_df[col]):
+            lst = np.unique(train_df[col].astype(str))
 
             # fix this later
             if col == PREDICT_COL:
                 for i in range(len(lst)):
                     ENCODING.append((i, lst[i]))
             for i in range(len(lst)):
-                df[col] = df[col].replace(lst[i], i)
+                train_df[col] = train_df[col].replace(lst[i], i)
 
-    target = df.pop(PREDICT_COL)
-    target = tf.one_hot(target.astype("int"), depth=len(df.columns))
+    train_target = train_df.pop(PREDICT_COL)
+    train_target = tf.one_hot(train_target.astype("int"), depth=len(train_df.columns))
+
+    train_df = train_df.astype('int')
+
+    
+    for col in test_df.columns:
+        if not all(isinstance(x, (int, float)) for x in test_df[col]):
+            lst = np.unique(test_df[col].astype(str))
+
+            # fix this later
+            if col == PREDICT_COL:
+                for i in range(len(lst)):
+                    ENCODING.append((i, lst[i]))
+            for i in range(len(lst)):
+                test_df[col] = test_df[col].replace(lst[i], i)
+
+    test_target = test_df.pop(PREDICT_COL)
+    test_target = tf.one_hot(test_target.astype("int"), depth=len(test_df.columns))
     # target = target.dtype('int')
-    df = df.astype('int')
+    test_df = test_df.astype('int')
 
-    numeric_feature_names = [name for name in df.columns]
-    numeric_features = df[numeric_feature_names]
-    numeric_features.head()
-    print(numeric_features.iloc[:3])
-    tf.convert_to_tensor(numeric_features)
+    train_numeric_feature_names = [name for name in train_df.columns]
+    train_numeric_features = train_df[train_numeric_feature_names]
+    train_numeric_features.head()
+    tf.convert_to_tensor(train_numeric_features)
+
+    test_numeric_feature_names = [name for name in test_df.columns]
+    test_numeric_features = test_df[test_numeric_feature_names]
+    test_numeric_features.head()
+    tf.convert_to_tensor(test_numeric_features)
 
     normalizer = tf.keras.layers.Normalization(axis=-1)
-    normalizer.adapt(numeric_features.to_numpy())
-    numeric_features = pd.DataFrame(numeric_features)
+    normalizer.adapt(train_numeric_features.to_numpy())
+
+    train_numeric_features = pd.DataFrame(train_numeric_features)
+    test_numeric_features = pd.DataFrame(test_numeric_features)
+
 
     update_job_status(model_id, "Building Model")
-    model = get_basic_model(normalizer, ENCODING, numeric_features)
+    model = get_basic_model(normalizer, ENCODING, train_numeric_features)
 
     model_summary = []
     model.summary(print_fn=lambda x: model_summary.append(x))
 
 
-    print(numeric_features.iloc[:3])
-    print(numeric_features.to_numpy().shape)
-    history = model.fit(numeric_features.to_numpy(), target, epochs=EPOCHS, batch_size=BATCH_SIZE)
+    
+    history = model.fit(
+        train_numeric_features.to_numpy(), train_target, epochs=EPOCHS, batch_size=BATCH_SIZE,
+        validation_data=(test_numeric_features, test_target)
+    )
+
 
     model.save(f'./local/{user_id}/{model_id}/model', save_format='tf')
 
@@ -204,6 +234,7 @@ def train(df, remove_cols, target, user_id, model_id):
     trainable_line = [line for line in model_summary if "Trainable params:" in line][0]
     trainable_params = trainable_line.split(":")[1].strip().split(" ")[0]
     final_accuracy = history.history['accuracy'][-1]
+    val_accuracy = history.history['val_accuracy'][-1]
 
     # store data in firebase 
     document_ref = db.collection('models').document(model_id)
@@ -218,7 +249,7 @@ def train(df, remove_cols, target, user_id, model_id):
 
     document_ref.update(data_to_add)
 
-    return {"success": True}
+    return {"accuracy" : val_accuracy}
 
 
 def get_basic_model(normalizer, encoding, numeric_features):

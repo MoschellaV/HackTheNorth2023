@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Box, Divider, Typography, CircularProgress } from "@mui/material";
+import { Box, Divider, Typography, CircularProgress, IconButton } from "@mui/material";
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../../../firebase/firebase";
@@ -7,6 +8,7 @@ import moment from "moment";
 
 export default function Model({ model, shouldRefetch, setShouldRefetch }) {
     const [docStatus, setDocStatus] = useState(model.status);
+    
 
     const getStatusColor = (status) => {
         switch (status.toLowerCase()) {
@@ -79,19 +81,25 @@ export default function Model({ model, shouldRefetch, setShouldRefetch }) {
                         Created on {formatDateFromUnix(model.createdAt)}
                     </Typography>
                 </Box>
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <Box
-                        sx={{
-                            borderRadius: "50%",
-                            backgroundColor: getStatusColor(docStatus),
-                            width: 10,
-                            height: 10,
-                            mr: 1,
-                        }}
-                    />
-                    <Typography component="p" variant="subtitle1" sx={{ fontSize: 16 }}>
-                        {docStatus}
-                    </Typography>
+
+                <Box sx={{display: "flex", flexDirection: "col"}}>
+                    {/* <IconButton aria-label="delete" size="small">
+                        <MoreVertIcon fontSize="inherit" />
+                    </IconButton> */}
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <Box
+                            sx={{
+                                borderRadius: "50%",
+                                backgroundColor: getStatusColor(docStatus),
+                                width: 10,
+                                height: 10,
+                                mr: 1,
+                            }}
+                        />
+                        <Typography component="p" variant="subtitle1" sx={{ fontSize: 16 }}>
+                            {docStatus}
+                        </Typography>
+                    </Box>
                 </Box>
             </Box>
             <Divider />
