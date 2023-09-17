@@ -15,7 +15,6 @@ from sklearn.model_selection import train_test_split
 
 
 
-
 app = FastAPI()
 
 # initialize firebase 
@@ -111,10 +110,10 @@ async def upload_csv_predict(
         file: UploadFile = File(...),
         target: str = Form(...)
 ):
-    # change the file into a dataframe
     df = pd.read_csv(file.file)
     # call predict function
     return predict(df, target, user_id, model_id)
+
 
 
 @app.post("/api/predict/{user_id}/{model_id}/json")
@@ -140,20 +139,24 @@ async def get_models(user_id: str):
 
 def train(train_df, test_df, remove_cols, target, user_id, model_id):
     BATCH_SIZE = 64  # 32
-    EPOCHS = 50  # 100
+    EPOCHS = 30  # 100
 
     # Print the shape of your data
     id_columns = []
     # check each column, if it increments by 1, it is an id column
-    print(len(train_df))
     for col in train_df.columns:
+        print(col, train_df[col].is_monotonic_increasing)
+
         if train_df[col].is_monotonic_increasing:
             id_columns.append(col)
 
-    print.log(PREDICT_COL)
+    print(id_columns)
+
 
     for col in id_columns:
         train_df = train_df.drop(col, axis=1)
+        test_df = test_df.drop(col, axis=1)
+
     PREDICT_COL = target
     ENCODING = []
 
@@ -184,6 +187,7 @@ def train(train_df, test_df, remove_cols, target, user_id, model_id):
             for i in range(len(lst)):
                 test_df[col] = test_df[col].replace(lst[i], i)
 
+    print(ENCODING)
 
     test_target = test_df.pop(PREDICT_COL)
     test_target = tf.one_hot(test_target.astype("int"), depth=len(test_df.columns))
@@ -191,6 +195,7 @@ def train(train_df, test_df, remove_cols, target, user_id, model_id):
     test_df = test_df.astype('int')
 
     train_numeric_feature_names = [name for name in train_df.columns]
+    print(train_numeric_feature_names)
     train_numeric_features = train_df[train_numeric_feature_names]
     train_numeric_features.head()
     tf.convert_to_tensor(train_numeric_features)
@@ -295,8 +300,8 @@ def predict(df: pd.DataFrame, target, user_id, model_id):
         if df[col].is_monotonic_increasing:
             id_columns.append(col)
 
-    for col in id_columns:
-        df = df.drop(col, axis=1)
+    # for col in id_columns:
+    #     df = df.drop(col, axis=1)
 
     for col in df.columns:
         if not all(isinstance(x, (int, float)) for x in df[col]):
@@ -317,6 +322,13 @@ def predict(df: pd.DataFrame, target, user_id, model_id):
 
     new_model = tf.keras.models.load_model(
         f'../backend/local/{user_id}/{model_id}/model')
+    
+    print(numeric_features)
+    print(len(numeric_features))
+    print(numeric_features.shape)
+    # print all column name in numeric_features
+    print(numeric_feature_names)
+
 
     predictions = new_model.predict(np.array(numeric_features))
 
