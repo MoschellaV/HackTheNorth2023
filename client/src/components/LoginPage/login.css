@@ -1,0 +1,8 @@
+/* Add this CSS to your stylesheets or use a styled-components approach */
+.login-container {
+    display: flex;
+    justify-content: flex-end; /* This moves the content to the right */
+    height: 100vh;
+    /* Add any other styling you need */
+  }
+  
