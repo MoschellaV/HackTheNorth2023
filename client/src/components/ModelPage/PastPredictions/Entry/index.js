@@ -6,15 +6,9 @@ import EntryModal from "./EntryModal";
 export default function Entry({ prediction, mostRecentPrediction }) {
     const [open, setOpen] = useState(false);
 
-    // function formatDateFromUnix(unixTimestamp) {
-    //     const dateMoment = moment.unix(unixTimestamp / 1000);
-    //     const formattedDate = dateMoment.format("MMM Do, YYYY");
-    //     return formattedDate;
-    // }
-
     return (
         <Box>
-            <EntryModal open={open} setOpen={setOpen} />
+            <EntryModal open={open} setOpen={setOpen} prediction={prediction} />
             <Box sx={{ my: 0.5 }} className={mostRecentPrediction === prediction.data.time && "backgroundAnimated"}>
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                     <Typography variant="p" component="p" sx={{ fontWeight: 500 }}>
