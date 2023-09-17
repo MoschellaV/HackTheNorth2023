@@ -205,7 +205,7 @@ def train(train_df, test_df, remove_cols, target, user_id, model_id):
     test_numeric_features.head()
     tf.convert_to_tensor(test_numeric_features)
 
-    normalizer = tf.keras.layers.Normalization(axis=-1)
+    normalizer = tf.keras.layers.Normalization(axis=1)
     normalizer.adapt(train_numeric_features.to_numpy())
 
     train_numeric_features = pd.DataFrame(train_numeric_features)
@@ -317,19 +317,15 @@ def predict(df: pd.DataFrame, target, user_id, model_id):
 
     tf.convert_to_tensor(numeric_features)
 
-    normalizer = tf.keras.layers.Normalization(axis=-1)
+    normalizer = tf.keras.layers.Normalization(axis=1)
     normalizer.adapt(numeric_features.to_numpy())
 
     new_model = tf.keras.models.load_model(
         f'../backend/local/{user_id}/{model_id}/model')
-    
-    print(numeric_features)
-    print(len(numeric_features))
-    print(numeric_features.shape)
-    # print all column name in numeric_features
-    print(numeric_feature_names)
+
+    normalized_features = normalizer(numeric_features.to_numpy())
+    predictions = new_model.predict(normalized_features)
 
 
-    predictions = new_model.predict(np.array(numeric_features))
 
     return {"predictions": predictions.tolist()}
