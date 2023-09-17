@@ -1,17 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { fetchDocument } from "../../utils/FetchDoc";
-import { Box, Button, Typography, CircularProgress } from "@mui/material";
+import { Box, Button, Typography, CircularProgress, Menu, MenuItem } from "@mui/material";
 import CenterWrapperWide from "../CenterWrapperWide";
 import PredictionStats from "./PredictionStats";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DeleteModal from "./DeleteModal";
+import DataObjectIcon from "@mui/icons-material/DataObject";
+import TextSnippetIcon from "@mui/icons-material/TextSnippet";
 
 export default function ModelPage() {
     const [data, setData] = useState();
     const [loading, setLoading] = useState(false);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
+
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const openAnchor = Boolean(anchorEl);
+    const handleClickDropdown = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleCloseDropdown = () => {
+        setAnchorEl(null);
+    };
 
     let params = useParams();
 
@@ -44,6 +55,7 @@ export default function ModelPage() {
                                 {data.name}
                             </Typography>
                         </Box>
+
                         {/* CREATE MODEL */}
                         <Box>
                             <Button
@@ -56,6 +68,7 @@ export default function ModelPage() {
                                         borderColor: "black",
                                     },
                                 }}
+                                onClick={handleClickDropdown}
                             >
                                 <Box sx={{ display: "flex", alignItems: "center" }}>
                                     <AddIcon sx={{ fontSize: 20, mr: 1 }} />
@@ -68,6 +81,22 @@ export default function ModelPage() {
                                     </Typography>
                                 </Box>
                             </Button>
+                            <Menu
+                                id="basic-menu"
+                                anchorEl={anchorEl}
+                                open={openAnchor}
+                                onClose={handleCloseDropdown}
+                                MenuListProps={{
+                                    "aria-labelledby": "basic-button",
+                                }}
+                            >
+                                <MenuItem onClick={handleCloseDropdown}>
+                                    <TextSnippetIcon sx={{ mr: 1 }} /> Upload CSV
+                                </MenuItem>
+                                <MenuItem onClick={handleCloseDropdown}>
+                                    <DataObjectIcon sx={{ mr: 1 }} /> Enter JSON
+                                </MenuItem>
+                            </Menu>
 
                             {/* DELETE MODAL */}
                             <Button
