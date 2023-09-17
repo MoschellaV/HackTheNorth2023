@@ -105,12 +105,11 @@ async def upload_csv_predict(
         user_id: str,
         model_id: str,
         file: UploadFile = File(...),
-        target: str = Form(...)
 ):
     # change the file into a dataframe
     df = pd.read_csv(file.file)
     # call predict function
-    return predict(df, target, user_id, model_id)
+    return predict(df, None, user_id, model_id)
 
 
 @app.post("/api/predict/{user_id}/{model_id}/json")
