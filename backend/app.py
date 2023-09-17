@@ -246,6 +246,7 @@ def train(train_df, test_df, remove_cols, target, user_id, model_id):
         'model_type': model_name,
         'trainable_params': trainable_params,
         "final_accuracy": final_accuracy,
+        "val_accuracy": val_accuracy,
         "all_accuracy": history.history['accuracy'],
         "encoding": {str(item[0]): item[1] for item in ENCODING},
         "epochs": EPOCHS,
@@ -284,7 +285,7 @@ def get_basic_model(normalizer, encoding, numeric_features):
         tf.keras.layers.Dropout(0.2),
         tf.keras.layers.Dense(lst[3], activation='relu'),
         tf.keras.layers.Dropout(0.2),
-        tf.keras.layers.Dense(numeric_features.to_numpy().shape[-1], activation='sigmoid')
+        tf.keras.layers.Dense(numeric_features.to_numpy().shape[-1], activation='softmax')
     ])
 
     model.compile(optimizer='adam',
