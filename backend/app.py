@@ -105,11 +105,12 @@ async def upload_csv_predict(
         user_id: str,
         model_id: str,
         file: UploadFile = File(...),
+        target: str = Form(...)
 ):
     # change the file into a dataframe
     df = pd.read_csv(file.file)
     # call predict function
-    return predict(df, None, user_id, model_id)
+    return predict(df, target, user_id, model_id)
 
 
 @app.post("/api/predict/{user_id}/{model_id}/json")
@@ -270,6 +271,7 @@ def predict(df: pd.DataFrame, target, user_id, model_id):
             for i in range(len(lst)):
                 df[col] = df[col].replace(lst[i], i)
 
+    df = df.drop(target, axis=1)
     df = df.astype('int')
     numeric_feature_names = [name for name in df.columns]
     numeric_features = df[numeric_feature_names]
