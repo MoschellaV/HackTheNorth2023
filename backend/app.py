@@ -14,7 +14,6 @@ from helper import update_job_status
 
 import tensorflow_data_validation as tfdv
 
-
 app = FastAPI()
 
 # initialize firebase 
@@ -46,8 +45,6 @@ app.add_middleware(
 @app.post("/api/train-upload/{user_id}/{model_id}")
 async def upload_csv(user_id: str, model_id: str, file: UploadFile = File(...)):
     delimiter = ','
-
-
 
     # The 'file' parameter is used to receive the uploaded CSV file.
     # The 'delimiter' parameter is used to specify the delimiter used in the CSV file (default is comma ',').
@@ -106,12 +103,12 @@ async def upload_csv_predict(
         user_id: str,
         model_id: str,
         file: UploadFile = File(...),
-        target: str = Form(...)
+        # target: str = Form(...)
 ):
     # change the file into a dataframe
     df = pd.read_csv(file.file)
     # call predict function
-    return predict(df, target, user_id, model_id)
+    return predict(df, user_id, model_id)
 
 
 @app.post("/api/predict/{user_id}/{model_id}/json")
@@ -139,41 +136,37 @@ def train(df, remove_cols, target, user_id, model_id):
     BATCH_SIZE = 64  # 32
     EPOCHS = 50  # 100
 
-    # Print the shape of your data
     id_columns = []
     # check each column, if it increments by 1, it is an id column
-    print(len(df))
     for col in df.columns:
         if df[col].is_monotonic_increasing:
             id_columns.append(col)
-
-    print(len(df))
-
-
     for col in id_columns:
         df = df.drop(col, axis=1)
+
     PREDICT_COL = target
     ENCODING = []
 
     for col in df.columns:
         if not all(isinstance(x, (int, float)) for x in df[col]):
             lst = np.unique(df[col].astype(str))
+
+            # fix this later
             if col == PREDICT_COL:
                 for i in range(len(lst)):
                     ENCODING.append((i, lst[i]))
+
             for i in range(len(lst)):
                 df[col] = df[col].replace(lst[i], i)
 
     target = df.pop(PREDICT_COL)
-    print(len(df))
-
-    target = target.astype('int')
+    target = tf.one_hot(target.astype("int"), depth=len(df.columns))
+    # target = target.dtype('int')
     df = df.astype('int')
 
     numeric_feature_names = [name for name in df.columns]
     numeric_features = df[numeric_feature_names]
     numeric_features.head()
-    print(numeric_features.iloc[:3])
     tf.convert_to_tensor(numeric_features)
 
     normalizer = tf.keras.layers.Normalization(axis=-1)
@@ -186,9 +179,8 @@ def train(df, remove_cols, target, user_id, model_id):
     model_summary = []
     model.summary(print_fn=lambda x: model_summary.append(x))
 
-
     print(numeric_features.iloc[:3])
-    print(target)
+    print(numeric_features.to_numpy().shape)
     history = model.fit(numeric_features.to_numpy(), target, epochs=EPOCHS, batch_size=BATCH_SIZE)
 
     model.save(f'./local/{user_id}/{model_id}/model', save_format='tf')
@@ -221,7 +213,7 @@ def train(df, remove_cols, target, user_id, model_id):
 
 
 def get_basic_model(normalizer, encoding, numeric_features):
-    print(numeric_features)
+    # fix encoding
     nodes = len(numeric_features) / (5 * (len(numeric_features.iloc[0]) + len(encoding)))
     res = 0
     for i in range(floor(nodes), 0, -1):
@@ -230,14 +222,13 @@ def get_basic_model(normalizer, encoding, numeric_features):
             break
     lst = [res]
 
-
-
     for i in range(3):
         res /= 2
         lst.append(res)
 
     if lst[0] < 64:
         lst = [64, 32, 16, 8]
+
     model = tf.keras.Sequential([
         normalizer,
         tf.keras.layers.Dense(lst[0], activation='relu'),
@@ -247,11 +238,11 @@ def get_basic_model(normalizer, encoding, numeric_features):
         tf.keras.layers.Dropout(0.2),
         tf.keras.layers.Dense(lst[3], activation='relu'),
         tf.keras.layers.Dropout(0.2),
-        tf.keras.layers.Dense(len(encoding), activation='sigmoid')
+        tf.keras.layers.Dense(numeric_features.to_numpy().shape[-1], activation='sigmoid')
     ])
 
     model.compile(optimizer='adam',
-                  loss="sparse_categorical_crossentropy",  # tf.keras.losses.BinaryCrossentropy(from_logits=True)
+                  loss="categorical_crossentropy",  # tf.keras.losses.BinaryCrossentropy(from_logits=True)
                   metrics=['accuracy'])
     return model
 
@@ -262,7 +253,6 @@ def predict(df: pd.DataFrame, target, user_id, model_id):
     for col in df.columns:
         if df[col].is_monotonic_increasing:
             id_columns.append(col)
-
     for col in id_columns:
         df = df.drop(col, axis=1)
 
@@ -272,6 +262,7 @@ def predict(df: pd.DataFrame, target, user_id, model_id):
             for i in range(len(lst)):
                 df[col] = df[col].replace(lst[i], i)
 
+    df = df.drop(target, axis=1)
     df = df.astype('int')
     numeric_feature_names = [name for name in df.columns]
     numeric_features = df[numeric_feature_names]
@@ -287,5 +278,4 @@ def predict(df: pd.DataFrame, target, user_id, model_id):
 
     predictions = new_model.predict(np.array(numeric_features))
 
-    # TODO: add a good return value.
-    return {"predictions": predictions}
+    return {"predictions": predictions.tolist()}
