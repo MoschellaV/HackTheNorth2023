@@ -72,6 +72,7 @@ p{
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    height:95
 }
 
 .signup-form {
@@ -88,4 +89,14 @@ p{
 
 typography, signup-form{
     align-self: center;
+}
+
+/* signup.css */
+
+.form-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 0%;
 }

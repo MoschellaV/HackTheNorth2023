@@ -1,11 +1,12 @@
+
+import "./signup.css"; 
+import logo from "../../DropModel-T.png";
 import React, { useState } from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { signUpUser } from "../../utils/SignUpUser";
 import { storeUserData } from "../../utils/StoreUserData";
 import { Box, Button, CircularProgress, IconButton, InputAdornment, TextField, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import "./signup.css"; 
-import logo from "../../DropModel-T.png";
 
 export default function SignUpPage() {
     let navigate = useNavigate();
@@ -28,9 +29,43 @@ export default function SignUpPage() {
     };
 
     const handleSubmit = async () => {
-        // ... (remaining code remains the same)
-    };
+        setErrorMessage("");
+        setLoading(true);
+        if (!formData.email || !formData.password || !formData.confirmPassword) {
+            setErrorMessage("Missing fields!");
+            setLoading(false);
+            return;
+        }
+        if (formData.confirmPassword !== formData.password) {
+            setErrorMessage("Passwords do not match!");
+            setLoading(false);
+            return;
+        }
 
+        const signUpResponse = await signUpUser(formData.email, formData.password);
+        if (signUpResponse.message === "success") {
+            const data = {
+                uid: signUpResponse.user.uid,
+                email: signUpResponse.user.email,
+                createdAt: signUpResponse.user.metadata.createdAt,
+            };
+
+            await storeUserData(data);
+
+            setFormData((prevFormData) => ({
+                ...prevFormData,
+                email: "",
+                password: "",
+                confirmPassword: "",
+            }));
+
+            // redirect here
+            return navigate("/train");
+        } else {
+            setErrorMessage(signUpResponse.message);
+        }
+        setLoading(false);
+    };
     return (
         <div className="signup-page">
             <div className="blue-side">
@@ -48,41 +83,82 @@ export default function SignUpPage() {
                 </div>
             </div>
             <div className="white-side">
-                <div className="signup-form">
-                    <Typography component="h2" variant="h2" sx={{ textAlign: "center", color: "#0c3c72" }}>
-                        Register Here:
-                    </Typography>
-                    {/* TAKE IN EMAIL */}
-                    <TextField
-                        id="email"
-                        label="Email"
-                        variant="outlined"
-                        sx={{ width: 400, alignSelf: "center" }}
-                        value={formData.email}
-                        onChange={handleChange}
-                    />
-                    {/* ... (other input fields) */}
-                    {errorMessage && (
-                        <Typography variant="p" component="p" sx={{ color: "red", textAlign: "center", alignSelf: "center" }}>
-                            {errorMessage}
-                        </Typography>
-                    )}
-                    <Button
-                        variant="contained"
-                        sx={{ width: 400, height: 46, textTransform: "none", borderRadius: 8 , alignSelf: "center", backgroundColor: "#4696b6"}}
-                        onClick={handleSubmit}
-                        disabled={loading}
+            <div className="form-container">
+    <Typography component="h2" variant="h2" sx={{ textAlign: "center", color: "#0c3c72", marginBottom: 5 }}>
+        Register Here:
+    </Typography>
+    <TextField
+        id="email"
+        label="Email"
+        variant="outlined"
+        sx={{ width: 400, marginBottom: 5 }} // Adjust marginBottom for spacing
+        value={formData.email}
+        onChange={handleChange}
+    />
+
+    <TextField
+        id="password"
+        label="Password"
+        type={showPassword ? "text" : "password"}
+        variant="outlined"
+        InputProps={{
+            endAdornment: (
+                <InputAdornment position="end">
+                    <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
                     >
-                        Sign Up
-                        {loading && <CircularProgress size={15} sx={{ ml: 1, color: "#4696b6", opacity: 0.25,alignSelf: "center" }} />}
-                    </Button>
-                    <Typography variant="p" component="p" sx={{ mt: 1, textAlign: "center" ,alignSelf: "center"}}>
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                </InputAdornment>
+            ),
+        }}
+        sx={{ width: 400, marginBottom: 5 }} // Adjust marginBottom for spacing
+        value={formData.password}
+        onChange={handleChange}
+    />
+
+    <TextField
+        id="confirmPassword"
+        label="Confirm Password"
+        type={showConfirmPassword ? "text" : "password"}
+        variant="outlined"
+        InputProps={{
+            endAdornment: (
+                <InputAdornment position="end">
+                    <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        edge="end"
+                    >
+                        {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                </InputAdornment>
+            ),
+        }}
+        sx={{ width: 400, marginBottom:0 }} // Keep marginBottom larger for the last textbox
+        value={formData.confirmPassword}
+        onChange={handleChange}
+    />
+
+    <Button
+        variant="contained"
+        sx={{ width: 400, height: 46, marginTop: 10, marginBottom: 0, textTransform: "none", borderRadius: 8, alignSelf: "center", backgroundColor: "#4696b6" }}
+        onClick={handleSubmit}
+        disabled={loading}
+    >
+        Sign Up
+        {loading && <CircularProgress size={15} sx={{ ml: 1, color: "#4696b6", opacity: 0.25, alignSelf: "center" }} />}
+    </Button>
+    <Typography variant="p" component="p" sx={{ mt: 1, textAlign: "center" }}>
                         Already have an account?{" "}
-                        <a href="/login" style={{ textDecoration: "underline", color: "#4696b6" ,alignSelf: "center"}}>
+                        <a href="/login" style={{ textDecoration: "underline", color: "blue" }}>
                             Login
                         </a>
                     </Typography>
-                </div>
+
+</div>
             </div>
         </div>
     );
