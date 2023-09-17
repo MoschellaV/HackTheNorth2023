@@ -344,4 +344,18 @@ def predict(df: pd.DataFrame, target, user_id, model_id, encoding):
         likelihood[i] = frequencies[i] / total
 
 
-    return {"predictions": predictions.tolist(), "frequencies" :  frequencies, "averages": highestAverages, "likelihood": likelihood}
+    print(encoding)
+    freq2 = {}
+    for i in range(len(frequencies)):
+        freq2[encoding[str(i)]] = frequencies[i]
+
+    like2 = {}
+    for i in range(len(likelihood)):
+        like2[encoding[str(i)]] = likelihood[i]
+
+    avg2 = {}
+    for i in range(len(highestAverages)):
+        avg2[encoding[str(i)]] = highestAverages[i]
+
+
+    return {"predictions": predictions.tolist(), "frequencies" : freq2, "averages": avg2, "likelihood": like2}
