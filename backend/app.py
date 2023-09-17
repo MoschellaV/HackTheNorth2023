@@ -150,13 +150,12 @@ def train(train_df, test_df, remove_cols, target, user_id, model_id):
         if train_df[col].is_monotonic_increasing:
             id_columns.append(col)
 
+    print.log(PREDICT_COL)
 
     for col in id_columns:
         train_df = train_df.drop(col, axis=1)
     PREDICT_COL = target
     ENCODING = []
-
-
 
     for col in train_df.columns:
         if not all(isinstance(x, (int, float)) for x in train_df[col]):
@@ -174,17 +173,17 @@ def train(train_df, test_df, remove_cols, target, user_id, model_id):
 
     train_df = train_df.astype('int')
 
-    
     for col in test_df.columns:
         if not all(isinstance(x, (int, float)) for x in test_df[col]):
             lst = np.unique(test_df[col].astype(str))
-
             # fix this later
             if col == PREDICT_COL:
                 for i in range(len(lst)):
-                    ENCODING.append((i, lst[i]))
+                    if (i, lst[i]) not in ENCODING:
+                        ENCODING.append((i, lst[i]))
             for i in range(len(lst)):
                 test_df[col] = test_df[col].replace(lst[i], i)
+
 
     test_target = test_df.pop(PREDICT_COL)
     test_target = tf.one_hot(test_target.astype("int"), depth=len(test_df.columns))
