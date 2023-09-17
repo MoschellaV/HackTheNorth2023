@@ -12,6 +12,7 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 from helper import update_job_status
 from sklearn.model_selection import train_test_split
+import json
 
 app = FastAPI()
 
@@ -284,6 +285,8 @@ def get_basic_model(normalizer, encoding, numeric_features):
 
 def predict(df: pd.DataFrame, target, user_id, model_id, encoding):
     id_columns = []
+
+    encoding = json.loads(encoding)
     # check each column, if it increments by 1, it is an id column
     for col in df.columns:
         if df[col].is_monotonic_increasing:
@@ -314,4 +317,31 @@ def predict(df: pd.DataFrame, target, user_id, model_id, encoding):
 
     predictions = new_model.predict(numeric_features)
 
-    return {"predictions": predictions.tolist()}
+    frequencies = [0] * len(encoding.keys())
+    for i in range(len(predictions)):
+        highest = -1
+        for j in range(len(predictions[i])):
+            if predictions[i][j] > highest:
+                highest = predictions[i][j]
+                index = j
+        frequencies[index] += 1
+
+
+    highestAverages = [0] * len(predictions[0])
+    # loop through 2d array columns first
+    for i in range(len(predictions[0])):
+        for j in range(len(predictions)):
+            if predictions[j][i] > 1 / len(predictions[0]):
+                highestAverages[i] += predictions[j][i]
+
+    for i in range(len(highestAverages)):
+        highestAverages[i] = highestAverages[i] / frequencies[i]
+
+    total = len(predictions)
+
+    likelihood = [0] * len(predictions[0])
+    for i in range(len(predictions[0])):
+        likelihood[i] = frequencies[i] / total
+
+
+    return {"predictions": predictions.tolist(), "frequencies" :  frequencies, "averages": highestAverages, "likelihood": likelihood}
