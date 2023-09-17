@@ -51,9 +51,13 @@ export default function PredictionStats({ data }) {
                                     height: { xs: 150, md: 200 },
                                 }}
                             >
-                                <Box sx={{ display: "flex", flexDirection: "column", textAlign: "center"}}>
-                                    <Typography variant="h5" component="p" sx={{ fontWeight: 600, fontSize: 36, marginLeft: 1 }}>
-                                        {`${(data.final_accuracy * 100).toFixed(0)}%`}
+                                <Box sx={{ display: "flex", flexDirection: "column", textAlign: "center" }}>
+                                    <Typography
+                                        variant="h5"
+                                        component="p"
+                                        sx={{ fontWeight: 600, fontSize: 36, marginLeft: 1 }}
+                                    >
+                                        {`${(data.val_accuracy * 100).toFixed(0)}%`}
                                     </Typography>
                                     <Typography
                                         variant="p"
