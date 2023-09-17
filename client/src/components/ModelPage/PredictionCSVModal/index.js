@@ -27,6 +27,7 @@ const style = {
 };
 
 export default function PredictionCSVModal({
+    setMostRecentPrediction,
     shouldRefetch,
     setShouldRefetch,
     encoding,
@@ -79,10 +80,8 @@ export default function PredictionCSVModal({
 
                     createSubcollection("models", modelId, "predictions", predictionId, predictionData);
                     setShouldRefetch(!shouldRefetch);
-                    // const map = countMaxIndices(res.data.predictions, encoding);
-                    // console.log(map);
-                    // await updateDocField()
-                    // setRawData(res.data);
+                    setMostRecentPrediction(currentTimeUnix);
+                    handleClose();
                 }
             })
             .catch((err) => {

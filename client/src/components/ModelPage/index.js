@@ -22,6 +22,7 @@ export default function ModelPage() {
 
     //predictions
     const [predictions, setPredictions] = useState([]);
+    const [mostRecentPrediction, setMostRecentPrediction] = useState();
 
     // csv prediction modal
     const [openCSVModal, setOpenCSVModal] = useState(false);
@@ -50,11 +51,9 @@ export default function ModelPage() {
     }, [params.modelId]);
 
     useEffect(() => {
-        console.log("ran");
         const getPastPredictions = async () => {
             const temp = await getSubcollectionDocs("models", params.modelId, "predictions");
             const sortedData = temp.sort((a, b) => b.data.time - a.data.time);
-            // console.log("temps: " + temp[0].time);
             setPredictions(sortedData);
         };
         getPastPredictions();
@@ -68,6 +67,7 @@ export default function ModelPage() {
                 setOpenDeleteModal={setOpenDeleteModal}
             />
             <PredictionCSVModal
+                setMostRecentPrediction={setMostRecentPrediction}
                 shouldRefetch={shouldRefetch}
                 setShouldRefetch={setShouldRefetch}
                 encoding={data.encoding}
@@ -139,9 +139,9 @@ export default function ModelPage() {
                                 >
                                     <TextSnippetIcon sx={{ mr: 1 }} /> Upload CSV
                                 </MenuItem>
-                                <MenuItem onClick={handleCloseDropdown}>
+                                {/* <MenuItem onClick={handleCloseDropdown}>
                                     <DataObjectIcon sx={{ mr: 1 }} /> Enter JSON
-                                </MenuItem>
+                                </MenuItem> */}
                             </Menu>
 
                             {/* DELETE MODAL */}
@@ -176,7 +176,7 @@ export default function ModelPage() {
                     <PredictionStats data={data} />
                     <Grid container>
                         <Grid item md={6} xs={12}>
-                            <PastPredictions predictions={predictions} />
+                            <PastPredictions predictions={predictions} mostRecentPrediction={mostRecentPrediction} />
                         </Grid>
                     </Grid>
                 </Box>
