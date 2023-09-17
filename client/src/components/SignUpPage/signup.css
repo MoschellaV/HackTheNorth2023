@@ -39,7 +39,8 @@
     max-width: 600px; /* Adjust the max-width as needed */
     padding-top: 100px;
 }
-p{
+
+.signup-page p{
     padding-top:50px;
     align-self:center;
     width:80%;
@@ -91,7 +92,7 @@ typography, signup-form{
     align-self: center;
 }
 
-/* signup.css */
+/* signup.css */ 
 
 .form-container {
     display: flex;
