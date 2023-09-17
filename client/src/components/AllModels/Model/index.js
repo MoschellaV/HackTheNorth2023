@@ -39,7 +39,7 @@ export default function Model({ model, shouldRefetch, setShouldRefetch }) {
     }, []);
 
     function formatDateFromUnix(unixTimestamp) {
-        const dateMoment = moment.unix(unixTimestamp / 1000); // Convert from milliseconds to seconds
+        const dateMoment = moment.unix(unixTimestamp / 1000);
         const formattedDate = dateMoment.format("MMM Do, YYYY");
         return formattedDate;
     }
@@ -50,7 +50,7 @@ export default function Model({ model, shouldRefetch, setShouldRefetch }) {
             <Box sx={{ p: 2, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <Box>
                     {docStatus === "Completed" ? (
-                        <a href={`/your-model/${model.modelId}`} target="_blank" rel="noreferrer">
+                        <a href={`/your-models/${model.modelId}`}>
                             <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                                 <Typography
                                     component="p"
