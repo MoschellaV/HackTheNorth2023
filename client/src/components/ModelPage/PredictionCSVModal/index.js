@@ -63,7 +63,7 @@ export default function PredictionCSVModal({
         const formData = new FormData();
         formData.append("file", myFile[0]);
         formData.append("target", target);
-        formData.append("encoding", encoding);
+        formData.append("encoding", JSON.stringify(encoding));
 
         predictCSV(formData, userData.uid, modelId)
             .then((res) => {
