@@ -327,6 +327,4 @@ def predict(df: pd.DataFrame, target, user_id, model_id):
     normalized_features = normalizer(numeric_features.to_numpy())
     predictions = new_model.predict(normalized_features)
 
-
-
     return {"predictions": predictions.tolist()}
