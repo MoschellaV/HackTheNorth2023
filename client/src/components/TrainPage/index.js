@@ -76,6 +76,7 @@ export default function TrainPage(props) {
                 <Typography variant="h3" component="h3" sx={{ my: 3 }}>
                     Generate Model
                 </Typography>
+
                 {/* STEP 1 */}
                 <Step stepNum={"1"} description={"Upload your dataset!"} isCompleted={userHasUploadFile} />
                 {!myFile && (
