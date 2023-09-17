@@ -104,11 +104,12 @@ async def upload_csv_predict(
         user_id: str,
         model_id: str,
         file: UploadFile = File(...),
-        target: str = Form(...)
+        target: str = Form(...),
+        encoding = Form(...),
 ):
     df = pd.read_csv(file.file)
     # call predict function
-    return predict(df, target, user_id, model_id)
+    return predict(df, target, user_id, model_id, encoding)
 
 
 @app.post("/api/predict/{user_id}/{model_id}/json")
@@ -116,7 +117,8 @@ async def upload_json_predict(user_id: str, model_id: str, file: UploadFile = Fi
     # transform user input into a dataframe
     df = pd.read_json(file.file)
     # call predict function
-    predict(df, user_id, model_id)
+    # TODO: fix
+    predict(df, user_id, model_id, None)
 
 
 # GET ALL MODELS FOR USER_ID
@@ -157,7 +159,8 @@ def train(train_df, test_df, remove_cols, target, user_id, model_id):
     COLUMN = train_df[PREDICT_COL].copy()
     COLUMN = np.unique(COLUMN)
     for i in range(len(COLUMN)):
-        ENCODING.append([i, COLUMN[i]])
+        ENCODING.append([i, str(COLUMN[i])])
+
 
     for col in train_df.columns:
         if not all(isinstance(x, (int, float)) for x in train_df[col]):
@@ -238,6 +241,7 @@ def train(train_df, test_df, remove_cols, target, user_id, model_id):
         "epochs": EPOCHS,
     }
 
+    print(data_to_add)
     document_ref.update(data_to_add)
 
     return {"accuracy": val_accuracy}
@@ -278,7 +282,7 @@ def get_basic_model(normalizer, encoding, numeric_features):
     return model
 
 
-def predict(df: pd.DataFrame, target, user_id, model_id):
+def predict(df: pd.DataFrame, target, user_id, model_id, encoding):
     id_columns = []
     # check each column, if it increments by 1, it is an id column
     for col in df.columns:
