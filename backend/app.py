@@ -12,6 +12,7 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 from helper import update_job_status
 
+import tensorflow_data_validation as tfdv
 
 
 app = FastAPI()
@@ -157,6 +158,8 @@ def train(df, remove_cols, target, user_id, model_id):
     for col in df.columns:
         if not all(isinstance(x, (int, float)) for x in df[col]):
             lst = np.unique(df[col].astype(str))
+
+            # fix this later
             if col == PREDICT_COL:
                 for i in range(len(lst)):
                     ENCODING.append((i, lst[i]))
@@ -164,9 +167,8 @@ def train(df, remove_cols, target, user_id, model_id):
                 df[col] = df[col].replace(lst[i], i)
 
     target = df.pop(PREDICT_COL)
-    print(len(df))
-
-    target = target.astype('int')
+    target = tf.one_hot(target.astype("int"), depth=len(df.columns))
+    # target = target.dtype('int')
     df = df.astype('int')
 
     numeric_feature_names = [name for name in df.columns]
@@ -187,7 +189,7 @@ def train(df, remove_cols, target, user_id, model_id):
 
 
     print(numeric_features.iloc[:3])
-    print(target)
+    print(numeric_features.to_numpy().shape)
     history = model.fit(numeric_features.to_numpy(), target, epochs=EPOCHS, batch_size=BATCH_SIZE)
 
     model.save(f'./local/{user_id}/{model_id}/model', save_format='tf')
@@ -220,7 +222,7 @@ def train(df, remove_cols, target, user_id, model_id):
 
 
 def get_basic_model(normalizer, encoding, numeric_features):
-    print(numeric_features)
+    # fix encoding
     nodes = len(numeric_features) / (5 * (len(numeric_features.iloc[0]) + len(encoding)))
     res = 0
     for i in range(floor(nodes), 0, -1):
@@ -237,6 +239,7 @@ def get_basic_model(normalizer, encoding, numeric_features):
 
     if lst[0] < 64:
         lst = [64, 32, 16, 8]
+
     model = tf.keras.Sequential([
         normalizer,
         tf.keras.layers.Dense(lst[0], activation='relu'),
@@ -246,11 +249,11 @@ def get_basic_model(normalizer, encoding, numeric_features):
         tf.keras.layers.Dropout(0.2),
         tf.keras.layers.Dense(lst[3], activation='relu'),
         tf.keras.layers.Dropout(0.2),
-        tf.keras.layers.Dense(len(encoding), activation='sigmoid')
+        tf.keras.layers.Dense(numeric_features.to_numpy().shape[-1], activation='sigmoid')
     ])
 
     model.compile(optimizer='adam',
-                  loss="sparse_categorical_crossentropy",  # tf.keras.losses.BinaryCrossentropy(from_logits=True)
+                  loss="categorical_crossentropy",  # tf.keras.losses.BinaryCrossentropy(from_logits=True)
                   metrics=['accuracy'])
     return model
 
@@ -286,5 +289,5 @@ def predict(df: pd.DataFrame, target, user_id, model_id):
         f'../backend/local/{user_id}/{model_id}/model')
 
     predictions = new_model.predict(np.array(numeric_features))
-    # TODO: add a good return value.
+
     return {"predictions": predictions.tolist()}
