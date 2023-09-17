@@ -286,6 +286,5 @@ def predict(df: pd.DataFrame, target, user_id, model_id):
         f'../backend/local/{user_id}/{model_id}/model')
 
     predictions = new_model.predict(np.array(numeric_features))
-
     # TODO: add a good return value.
-    return {"predictions": predictions}
+    return {"predictions": predictions.tolist()}
