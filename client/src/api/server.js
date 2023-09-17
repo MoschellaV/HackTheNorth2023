@@ -23,3 +23,14 @@ export const postTarget = (target, uid, modelId) => {
         },
     });
 };
+
+export const predictCSV = (formData, uid, modelId) => {
+    return axios({
+        method: "POST",
+        url: `${URL}/api/predict/${uid}/${modelId}/csv`,
+        data: formData,
+        headers: {
+            Accept: "application/json",
+        },
+    });
+};
