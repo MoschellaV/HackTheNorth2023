@@ -12,6 +12,9 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 from helper import update_job_status
 
+import tensorflow_data_validation as tfdv
+
+
 app = FastAPI()
 
 # initialize firebase 
@@ -43,6 +46,8 @@ app.add_middleware(
 @app.post("/api/train-upload/{user_id}/{model_id}")
 async def upload_csv(user_id: str, model_id: str, file: UploadFile = File(...)):
     delimiter = ','
+
+
 
     # The 'file' parameter is used to receive the uploaded CSV file.
     # The 'delimiter' parameter is used to specify the delimiter used in the CSV file (default is comma ',').
@@ -134,14 +139,21 @@ def train(df, remove_cols, target, user_id, model_id):
     BATCH_SIZE = 64  # 32
     EPOCHS = 50  # 100
 
-    REMOVED_COLS = remove_cols
-    REMOVED_COLS.append("BookingID")
+    # Print the shape of your data
+    id_columns = []
+    # check each column, if it increments by 1, it is an id column
+    print(len(df))
+    for col in df.columns:
+        if df[col].is_monotonic_increasing:
+            id_columns.append(col)
+
+    print(len(df))
+
+
+    for col in id_columns:
+        df = df.drop(col, axis=1)
     PREDICT_COL = target
     ENCODING = []
-
-    for i in range(len(REMOVED_COLS)):
-        df = df.drop(REMOVED_COLS[i], axis=1)
-    # df = df.drop(REMOVED_COL, axis=1)  # axis: 0 for row, 1 for column
 
     for col in df.columns:
         if not all(isinstance(x, (int, float)) for x in df[col]):
@@ -152,7 +164,6 @@ def train(df, remove_cols, target, user_id, model_id):
             for i in range(len(lst)):
                 df[col] = df[col].replace(lst[i], i)
 
-    print(len(df))
     target = df.pop(PREDICT_COL)
     print(len(df))
 
@@ -162,6 +173,7 @@ def train(df, remove_cols, target, user_id, model_id):
     numeric_feature_names = [name for name in df.columns]
     numeric_features = df[numeric_feature_names]
     numeric_features.head()
+    print(numeric_features.iloc[:3])
     tf.convert_to_tensor(numeric_features)
 
     normalizer = tf.keras.layers.Normalization(axis=-1)
@@ -174,6 +186,9 @@ def train(df, remove_cols, target, user_id, model_id):
     model_summary = []
     model.summary(print_fn=lambda x: model_summary.append(x))
 
+
+    print(numeric_features.iloc[:3])
+    print(target)
     history = model.fit(numeric_features.to_numpy(), target, epochs=EPOCHS, batch_size=BATCH_SIZE)
 
     model.save(f'./local/{user_id}/{model_id}/model', save_format='tf')
@@ -203,23 +218,26 @@ def train(df, remove_cols, target, user_id, model_id):
     document_ref.update(data_to_add)
 
     return {"success": True}
-  
 
 
 def get_basic_model(normalizer, encoding, numeric_features):
+    print(numeric_features)
     nodes = len(numeric_features) / (5 * (len(numeric_features.iloc[0]) + len(encoding)))
     res = 0
     for i in range(floor(nodes), 0, -1):
         if (i & (i - 1)) == 0:
             res = i
             break
-
     lst = [res]
+
+
+
     for i in range(3):
         res /= 2
         lst.append(res)
-    print(res)
 
+    if lst[0] < 64:
+        lst = [64, 32, 16, 8]
     model = tf.keras.Sequential([
         normalizer,
         tf.keras.layers.Dense(lst[0], activation='relu'),
@@ -239,7 +257,6 @@ def get_basic_model(normalizer, encoding, numeric_features):
 
 
 def predict(df: pd.DataFrame, target, user_id, model_id):
-
     id_columns = []
     # check each column, if it increments by 1, it is an id column
     for col in df.columns:
