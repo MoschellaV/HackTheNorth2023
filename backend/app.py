@@ -12,7 +12,6 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 from helper import update_job_status
 
-import tensorflow_data_validation as tfdv
 
 
 app = FastAPI()
