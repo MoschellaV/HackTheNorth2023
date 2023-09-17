@@ -1,0 +1,91 @@
+
+
+.signup-page {
+    display: flex;
+    height: 100vh;
+}
+
+.blue-side {
+    flex: 1;
+    background-color: rgb(255, 255, 255);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.blue-rectangle {
+    background-color: #0c3c72;
+    width: 95%;
+    height: 95%;
+    border-radius: 20px;
+    opacity: 0.9;
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+}
+
+.logo-div{
+    align-self: center;
+}
+
+.content-active {
+    color:#fff;
+    font-size: 40px;
+    text-align: left; /* Left-align text within the content */
+    padding: 120px; /* Add padding to the content for spacing */
+    display: flex;
+    flex-grow:2;
+    flex-direction: column;
+    align-items: space-evenly;
+    max-width: 600px; /* Adjust the max-width as needed */
+    padding-top: 100px;
+}
+p{
+    padding-top:50px;
+    align-self:center;
+    width:80%;
+}
+.content-active h1{
+    font-size:80px;
+    font-weight: 600;
+  }
+  
+ .content-active h1 span{
+    color:#4696b6;
+  }
+  
+  /* .content-active p{
+    margin-bottom: 65px;
+  } */
+  .content-active {
+    text-align: center; /* Center text horizontally */
+    padding-top: 150px; /* Add padding for spacing */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */
+    max-width: 100%; /* Use 100% width */
+}
+
+.white-side {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.signup-form {
+    display:flex;
+    flex-direction:column;
+    justify-content: space-evenly;
+    width:90%;
+    height: 95%;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+
+}
+
+typography, signup-form{
+    align-self: center;
+}
