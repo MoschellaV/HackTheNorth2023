@@ -117,7 +117,7 @@ code {
 
 
   section{
-    padding: 150px 100px;
+    padding: 100px 100px;
   }
   
   .home{
@@ -158,7 +158,7 @@ code {
     text-transform: uppercase;
     letter-spacing: 5px;
     line-height: 85px;
-    margin-bottom: 40px;
+    margin-bottom: 20px;
     font-weight:300;
   }
   
@@ -168,7 +168,7 @@ code {
   }
   
   .home .content p{
-    margin-bottom: 65px;
+    margin-bottom: 35px;
   }
   
   .home .content a:hover{
@@ -181,7 +181,8 @@ code {
     border-radius: 25px;
   }
   .home .content a{
-    background: #4696b6; /* Button colour!!*/
+    transition: all 0.3s ease;
+    background: #1e88e5;
     padding: 15px 35px;
     color: #fff;
     font-size: 1.1em;

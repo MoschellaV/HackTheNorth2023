@@ -10,8 +10,9 @@ export default function Navbar() {
             <nav class=" w-full mx-2 px-2 flex items-center justify-between" aria-label="Global">
                 <div class="flex items-center justify-between">
                     <a class="inline-flex items-center gap-x-2 text-xl font-semibold text-white" href="#">
-                        <img class="w-10 h-auto text-white" src={logo} alt="Logo"></img>
-                        DropModel
+                        <img class="w-12 h-auto text-white font-lg" src={logo} alt="Logo"></img>
+                        <span className="ml-2 text-2xl">DropModel</span>
+
                     </a>
                     <div class="sm:hidden">
                         <button
@@ -73,7 +74,7 @@ export default function Navbar() {
                                 <a href="/signup">
                                     <button
                                         type="button"
-                                        class="text-white text-md bg-blue-600 hover:bg-white hover:text-blue-600 focus:ring-4 font-medium rounded-lg px-5 py-2.5 ease-in duration-100"
+                                        class="text-white font-semibold bg-blue-600 hover:bg-white text-lg hover:text-blue-600 focus:ring-4 rounded-lg px-5 py-2.5 ease-in duration-100"
                                     >
                                         Register
                                     </button>
