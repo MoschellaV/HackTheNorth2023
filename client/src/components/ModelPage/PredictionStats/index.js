@@ -37,7 +37,7 @@ export default function PredictionStats({ data }) {
                         Prediction Statistics
                     </Typography>
                     <Grid container>
-                        <Grid item md={3} xs={6}>
+                        <Grid item md={2} xs={6}>
                             <Box
                                 sx={{
                                     display: "flex",
@@ -46,7 +46,7 @@ export default function PredictionStats({ data }) {
                                     borderRadius: "50%",
                                     border: "10px solid #37DB51",
                                     my: 2,
-                                    mx: { xs: 1, md: 5 },
+                                    mx: { xs: 1, md: 3 },
                                     width: { xs: 150, md: 200 },
                                     height: { xs: 150, md: 200 },
                                 }}
@@ -65,32 +65,34 @@ export default function PredictionStats({ data }) {
                                 </Box>
                             </Box>
                         </Grid>
-                        <Grid item md={3} sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            <Stack spacing={3}>
+                        <Grid item md={4} sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            <Stack spacing={3} sx={{ width: 250, ml: 15 }}>
+                                {/* <Box sx={{ display: "flex", flexDirection: "column", width: 300 }}> */}
                                 <Box sx={{ display: "flex", alignItems: "center" }}>
                                     <SchemaIcon style={{ fontSize: 30 }} />
-                                    <Typography variant="p" component="p" sx={{ ml: 1, opacity: 0.7 }}>
-                                        Model Type: {data.model_type}
+                                    <Typography variant="p" component="p" sx={{ ml: 1, opacity: 0.7, fontSize: 16 }}>
+                                        Type: {data.model_type}
                                     </Typography>
                                 </Box>
                                 <Box sx={{ display: "flex", alignItems: "center" }}>
                                     <ModelTrainingIcon style={{ fontSize: 30 }} />
-                                    <Typography variant="p" component="p" sx={{ ml: 1, opacity: 0.7 }}>
-                                        Trainable Params: {data.trainable_params}
+                                    <Typography variant="p" component="p" sx={{ ml: 1, opacity: 0.7, fontSize: 16 }}>
+                                        Neurons: {data.trainable_params}
                                     </Typography>
                                 </Box>
                                 <Box sx={{ display: "flex", alignItems: "center" }}>
                                     <AllInclusiveIcon style={{ fontSize: 30 }} />
-                                    <Typography variant="p" component="p" sx={{ ml: 1, opacity: 0.7 }}>
+                                    <Typography variant="p" component="p" sx={{ ml: 1, opacity: 0.7, fontSize: 16 }}>
                                         Generations: {data.epochs}
                                     </Typography>
                                 </Box>
                                 <Box sx={{ display: "flex", alignItems: "center" }}>
                                     <AdsClickIcon style={{ fontSize: 30 }} />
-                                    <Typography variant="p" component="p" sx={{ ml: 1, opacity: 0.7 }}>
-                                        Target: {data.target}
+                                    <Typography variant="p" component="p" sx={{ ml: 1, opacity: 0.7, fontSize: 16 }}>
+                                        Tar: {data.target}
                                     </Typography>
-                                </Box>
+                                </Box>{" "}
+                                {/* </Box> */}
                             </Stack>
                         </Grid>
                         <Grid item md={6}>
