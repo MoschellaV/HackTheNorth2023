@@ -6,11 +6,11 @@ import EntryModal from "./EntryModal";
 export default function Entry({ prediction, mostRecentPrediction }) {
     const [open, setOpen] = useState(false);
 
-    function formatDateFromUnix(unixTimestamp) {
-        const dateMoment = moment.unix(unixTimestamp / 1000);
-        const formattedDate = dateMoment.format("MMM Do, YYYY");
-        return formattedDate;
-    }
+    // function formatDateFromUnix(unixTimestamp) {
+    //     const dateMoment = moment.unix(unixTimestamp / 1000);
+    //     const formattedDate = dateMoment.format("MMM Do, YYYY");
+    //     return formattedDate;
+    // }
 
     return (
         <Box>
@@ -40,7 +40,7 @@ export default function Entry({ prediction, mostRecentPrediction }) {
                 </Box>
                 <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                     <Typography variant="p" component="p" sx={{ fontSize: 14, opacity: 0.4, fontWeight: 500 }}>
-                        {formatDateFromUnix(prediction.data.time)}
+                        {moment(prediction.data.time).fromNow()}
                     </Typography>
                     <Typography
                         variant="p"
