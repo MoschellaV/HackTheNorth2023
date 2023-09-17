@@ -4,6 +4,9 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import moment from "moment";
+import BarChartGraph from "./BarChartGraph";
+import { Divider, Grid } from "@mui/material";
+import RadarChartGraph from "./RadarChartGraph";
 
 const style = {
     position: "absolute",
@@ -17,9 +20,10 @@ const style = {
     p: 4,
 };
 
-export default function EntryModal({ open, setOpen, prediction }) {
+export default function EntryModal({ encoding, open, setOpen, prediction }) {
     const [isHovered, setIsHovered] = React.useState(false);
     const handleClose = () => setOpen(false);
+    const [averages, setAverages] = React.useState([]);
 
     const handleMouseEnter = () => {
         setIsHovered(true);
@@ -46,9 +50,10 @@ export default function EntryModal({ open, setOpen, prediction }) {
                         variant="p"
                         component="p"
                         sx={{
-                            fontSize: 14,
+                            fontSize: 12,
                             fontWeight: 500,
                             opacity: 0.5,
+                            mb: 1,
                         }}
                         onMouseEnter={handleMouseEnter}
                         onMouseLeave={handleMouseLeave}
@@ -57,9 +62,62 @@ export default function EntryModal({ open, setOpen, prediction }) {
                             ? `predicted, ${moment(prediction.data.time).fromNow()}`
                             : `predicted,  ${formatUnixToDateTime(prediction.data.time)}`}
                     </Typography>
-                    <Typography sx={{ mt: 2 }}>
-                        Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-                    </Typography>
+                    <Divider />
+
+                    <Grid container sx={{ my: 2 }}>
+                        <Grid item xs={6} md={4} sx={{ minHeight: 250 }}>
+                            {/* mapping likelihood */}
+                            <Typography
+                                variant="p"
+                                component="p"
+                                sx={{ fontSize: 16, fontWeight: 600, opacity: 0.5, mb: 1 }}
+                            >
+                                Event Likelihood
+                            </Typography>
+                            <Box sx={{ my: 0.5 }}>
+                                {Object.keys(prediction.data.likelihood).map((key) => {
+                                    const value = prediction.data.likelihood[key];
+                                    const roundedValue = parseFloat(value).toFixed(2) * 100;
+
+                                    return (
+                                        <Typography variant="p" component="p" sx={{ fontSize: 18 }} key={key}>
+                                            <span>
+                                                {key}: <span style={{ fontWeight: 600 }}>{`${roundedValue}%`}</span>
+                                            </span>
+                                        </Typography>
+                                    );
+                                })}
+                            </Box>
+                            {/* mapping avgs */}
+                            <Typography
+                                variant="p"
+                                component="p"
+                                sx={{ fontSize: 16, fontWeight: 600, opacity: 0.5, mt: 2, mb: 1 }}
+                            >
+                                Average ML Confidence
+                            </Typography>
+                            {Object.keys(prediction.data.averages).map((key) => {
+                                const value = prediction.data.averages[key];
+                                const roundedValue = parseFloat(value).toFixed(2);
+
+                                return (
+                                    <Typography variant="p" component="p" sx={{ fontSize: 18 }} key={key}>
+                                        <span>
+                                            {key}: <span style={{ fontWeight: 600 }}>{roundedValue}</span>
+                                        </span>
+                                    </Typography>
+                                );
+                            })}
+                        </Grid>
+
+                        <Grid item xs={6} md={8} sx={{ minHeight: 250 }}>
+                            {Object.keys(prediction.data.freq).length <= 2 ? (
+                                <BarChartGraph frequencies={prediction.data.freq} />
+                            ) : (
+                                <RadarChartGraph frequencies={prediction.data.freq} />
+                            )}
+                        </Grid>
+                    </Grid>
                 </Box>
             </Modal>
         </div>

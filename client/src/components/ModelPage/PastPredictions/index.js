@@ -2,7 +2,7 @@ import { Box, Button, Divider, Typography } from "@mui/material";
 import React from "react";
 import Entry from "./Entry";
 
-export default function PastPredictions({ predictions, mostRecentPrediction }) {
+export default function PastPredictions({ encoding, predictions, mostRecentPrediction }) {
     return (
         <Box
             sx={{
@@ -24,7 +24,14 @@ export default function PastPredictions({ predictions, mostRecentPrediction }) {
             <Divider />
             {predictions.length > 0 ? (
                 predictions.map((prediction, index) => {
-                    return <Entry prediction={prediction} mostRecentPrediction={mostRecentPrediction} key={index} />;
+                    return (
+                        <Entry
+                            encoding={encoding}
+                            prediction={prediction}
+                            mostRecentPrediction={mostRecentPrediction}
+                            key={index}
+                        />
+                    );
                 })
             ) : (
                 <Typography component="p" variant="p" sx={{ my: 2, opacity: 0.5, fontWeight: 500 }}>

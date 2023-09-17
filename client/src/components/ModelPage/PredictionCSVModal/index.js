@@ -76,7 +76,9 @@ export default function PredictionCSVModal({
                         name: name,
                         predictionId: predictionId,
                         time: currentTimeUnix,
-                        // add the rest of the data here
+                        freq: res.data.frequencies,
+                        averages: res.data.averages,
+                        likelihood: res.data.likelihood,
                     };
 
                     createSubcollection("models", modelId, "predictions", predictionId, predictionData);

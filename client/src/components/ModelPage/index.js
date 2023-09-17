@@ -43,7 +43,6 @@ export default function ModelPage() {
         setLoading(true);
         const getDocData = async () => {
             const res = await fetchDocument("models", params.modelId);
-            console.log(res);
             setData(res);
             setLoading(false);
         };
@@ -176,7 +175,11 @@ export default function ModelPage() {
                     <PredictionStats data={data} />
                     <Grid container>
                         <Grid item md={6} xs={12}>
-                            <PastPredictions predictions={predictions} mostRecentPrediction={mostRecentPrediction} />
+                            <PastPredictions
+                                encoding={data.encoding}
+                                predictions={predictions}
+                                mostRecentPrediction={mostRecentPrediction}
+                            />
                         </Grid>
                     </Grid>
                 </Box>
