@@ -3,6 +3,7 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Box, Button, CircularProgress, IconButton, InputAdornment, TextField, Typography } from "@mui/material";
 import { logInUser } from "../../utils/LoginUser";
 import { useNavigate } from "react-router-dom";
+import "./login.css"; // Import your CSS file
 
 export default function LoginPage() {
     let navigate = useNavigate();
@@ -50,24 +51,16 @@ export default function LoginPage() {
     };
 
     return (
-        <>
+        <div className="login-container">
             <Box
                 component="main"
-                sx={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}
+                sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}
             >
-                <Box
-                    sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        height: "60vh",
-                        justifyContent: "space-evenly",
-                    }}
-                >
-                    <Typography component="h2" variant="h2" sx={{ textAlign: "center" }}>
-                        Login!
-                    </Typography>
-                    <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <Typography component="h2" variant="h2" sx={{ textAlign: "center" }}>
+                    Login!
+                </Typography>
+                
+                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                         <Typography component="p" variant="body1" sx={{ textAlign: "center", ml: 1 }}>
                             DropModel
                         </Typography>
@@ -129,8 +122,8 @@ export default function LoginPage() {
                             Sign Up
                         </a>
                     </Typography>
-                </Box>
+                {/* </Box> */}
             </Box>
-        </>
+        </div>
     );
 }

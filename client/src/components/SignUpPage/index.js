@@ -72,8 +72,8 @@ export default function SignUpPage() {
                 <div className="blue-rectangle">
                     <div className="content-active">
                             <br />
-                            <div class = "logo-div"><a className = "logo"class="inline-flex items-center gap-x-6 text-6xl font-bold dark:text-white" href="#">
-                            <img class="w-22 h-auto" src={logo} alt="Logo"></img>
+                            <div className="logo-div"><a className = "logo inline-flex items-center gap-x-6 text-6xl font-bold dark:text-white" href="/">
+                            <img className="w-22 h-auto" src={logo} alt="Logo"></img>
                             DropModel
                         </a></div>
                         <p>
